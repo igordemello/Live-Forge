@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "canvas": {"width": 1080, "height": 1920, "fps": 30},
+  "source": "tests/fixtures/sample_12s.mkv",
+  "source_size": [1920, 1080],
+  "duration_ms": 12000,
+  "template": "split",
+  "webcam_box": [1374, 43, 499, 374],
+  "game_box": [0, 0, 1920, 1080],
+  "hook_text": "OLHA ISSO!",
+  "layout": {
+    "cam": {"x": 0, "y": 0, "w": 1080, "h": 700, "fit": "cover", "visible": true},
+    "game": {"x": 0, "y": 1000, "w": 1080, "h": 608, "fit": "contain", "visible": true},
+    "caption": {"y": 0.445, "size": 80, "color": "#FFDF00"},
+    "hook": {"y": 0.56, "size": 84, "color": "#FFFFFF"},
+    "background": {"blur": 24, "dim": 0.35}
+  },
+  "captions": [
+    {"start_ms": 600, "end_ms": 2200, "words": [
+      {"text": "MANO,", "start_ms": 600, "end_ms": 1000},
+      {"text": "OLHA", "start_ms": 1000, "end_ms": 1500},
+      {"text": "ISSO!", "start_ms": 1500, "end_ms": 2200}]},
+    {"start_ms": 2600, "end_ms": 5200, "words": [
+      {"text": "NÃO", "start_ms": 2600, "end_ms": 3000},
+      {"text": "ACREDITO", "start_ms": 3000, "end_ms": 3800},
+      {"text": "QUE", "start_ms": 3800, "end_ms": 4100},
+      {"text": "ELE", "start_ms": 4100, "end_ms": 4500},
+      {"text": "FEZ", "start_ms": 4500, "end_ms": 5200}]}
+  ],
+  "effects": [
+    {"type": "zoom", "start_ms": 3000, "duration_ms": 700, "scale": 1.2, "anchor": [0.5, 0.45]},
+    {"type": "sfx", "start_ms": 3000, "asset": "assets/sfx/impact_soft.wav", "gain_db": -12},
+    {"type": "sfx", "start_ms": 550, "asset": "assets/sfx/whoosh.wav", "gain_db": -16}
+  ]
+}

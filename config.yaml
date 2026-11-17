@@ -1,0 +1,109 @@
+# LiveForge — padrões do projeto (vão para o GitHub). Seus ajustes pessoais ficam em data/settings.json,
+# feitos pelo painel (abas Configuração, Modelos, Contas) — não precisa editar este arquivo.
+session:
+  agents: [monitor, shorts, episodes]  # episodes só age quando você usa F6/F7
+  language: pt
+  game: auto                       # auto = nome da janela da Captura de jogo do OBS; ou escreva o nome (painel)
+  hashtags: ["#gameplay", "#shorts", "#reels", "#tiktok"]  # a hashtag do jogo é adicionada sozinha
+  vocabulary: []                   # nomes de amigos/termos do jogo para a transcrição acertar (painel)
+  planned_hours: 24                # duração prevista da live (usada para checar espaço em disco)
+
+capture:
+  directory: auto                  # auto = pasta de gravação informada pelo OBS (WebSocket); ou caminho absoluto
+  audio_stream: 0                  # trilha do MKV com o áudio completo (vai para os clipes)
+  transcribe_stream: null          # trilha só do microfone (ex.: 1); null = usa a completa. O painel detecta e ajusta.
+  closed_after_seconds: 20         # arquivo mais recente sem crescer por N s = gravação encerrada
+  lookback_hours: 8                # ao iniciar, ingere arquivos gravados nas últimas N horas
+
+obs:
+  enabled: true                    # métricas read-only (frames perdidos, pasta de gravação)
+  host: 127.0.0.1
+  port: 4455                       # senha: OBS_PASSWORD no .env (ou lida da config local do OBS)
+
+analysis:
+  whisper_model: large-v3-turbo    # bem mais preciso que small; ~0,25x o tempo do áudio com 4 threads (Ryzen 5 5500)
+  whisper_threads: 4
+  context_seconds: 30              # contexto do segmento anterior enviado ao modelo
+  min_score: 75
+  max_candidates_per_window: 3
+  loud_peak_db: 9                  # pico = volume acima da mediana do segmento
+  visual: true                     # movimento/trocas bruscas de tela (vídeo em 64x36, ~8% de 1 núcleo)
+  visual_fps: 4
+
+chat:                              # Twitch, leitura anônima: só conta mensagens/risadas, não guarda nomes nem textos
+  enabled: false
+  channel: ""                      # nome do seu canal, ex.: "meucanal"
+
+episodes:                          # agente 3 (ative com --agents monitor,shorts,episodes ou em session.agents)
+  min_minutes: 2
+  keep_free_gb: 150                # não exporta episódio se o disco ficar abaixo disso (a gravação da live vem antes)
+
+panel:
+  enabled: true
+  port: 8765
+  open_browser: true
+
+shorts:
+  template: split                  # split | gameplay | reaction (o modelo pode sugerir outro)
+  webcam_box: null                 # x,y,w,h da webcam no quadro 1920x1080 — o painel lê do OBS (Configuração/Modelos)
+  game_box: [0, 0, 1920, 1080]
+  fps: 30
+  duration_min: 15
+  duration_max: 60
+  max_sfx: 3
+  marker_before_s: 25              # F8: janela antes/depois do aperto
+  marker_after_s: 5
+  renderer: hyperframes            # hyperframes | ffmpeg_ass
+  fallback: ffmpeg_ass             # usado só se o HyperFrames falhar
+  hf_workers: 2                    # navegadores paralelos do HyperFrames (mais = mais rápido e mais CPU)
+  trim_pauses: true                # corta pausas mortas (sem fala, sem pico, imagem parada)
+  trim_min_gap_ms: 1200
+  trim_pad_ms: 250
+  loudness_lufs: -14
+
+models:                            # via Claude Code (`claude -p`) na sua assinatura — nenhuma API paga
+  backend: claude_code             # claude_code | none (só heurística local)
+  claude_path: null                # null = acha sozinho (claude no PATH ou o Claude Code do app desktop)
+  cheap: haiku                     # aliases do Claude Code: sempre a versão atual do modelo
+  editorial: sonnet
+  escalate_min_score: 65           # nota entre isto e min_score => segunda opinião do modelo editorial
+  max_calls_session: 800           # protege os limites de uso da assinatura (~20 chamadas por hora de live)
+  max_calls_hour: 40
+  pause_at_5h_pct: 80              # para de chamar o Claude quando a janela de 5 h da assinatura passar disso
+  pause_at_7d_pct: 90              # idem para o limite semanal (sobra cota para você usar o Claude)
+
+resources:
+  max_cpu_pct: 80                  # não inicia trabalho pesado acima disso
+  kill_cpu_pct: 97                 # sem métricas do OBS: aborta render se CPU ficar nisso por ~15 s
+  max_new_dropped_frames: 30       # frames perdidos pelo OBS em 10 s => aborta e adia
+  max_gpu_pct: 85                  # uso 3D da GPU (o encoder é só exibido: o serviço da AMD já o ocupa)
+  min_free_gb: 30
+  min_free_ram_gb: 2
+  resume_stable_seconds: 60
+  defer_on_missing_metrics: true   # OBS aberto mas WebSocket inacessível => não inicia trabalho pesado
+
+templates:                         # layout dos Shorts em 1080x1920 (edite visualmente na aba "Modelos" do painel)
+  split:                           # rosto em cima, legenda no meio, jogo embaixo
+    cam: {x: 0, y: 0, w: 1080, h: 700, fit: cover, visible: true}
+    game: {x: 0, y: 1000, w: 1080, h: 608, fit: contain, visible: true}
+    caption: {y: 0.445, size: 80, color: "#FFDF00"}
+    hook: {y: 0.56, size: 84, color: "#FFFFFF"}
+  reaction:                        # rosto grande
+    cam: {x: 0, y: 0, w: 1080, h: 1056, fit: cover, visible: true}
+    game: {x: 0, y: 1290, w: 1080, h: 608, fit: contain, visible: true}
+    caption: {y: 0.61, size: 80, color: "#FFDF00"}
+    hook: {y: 0.70, size: 84, color: "#FFFFFF"}
+  gameplay:                        # só o jogo (a webcam aparece onde já estiver no quadro original)
+    cam: {x: 0, y: 0, w: 1080, h: 700, fit: cover, visible: false}
+    game: {x: 0, y: 656, w: 1080, h: 608, fit: contain, visible: true}
+    caption: {y: 0.50, size: 80, color: "#FFDF00"}
+    hook: {y: 0.28, size: 84, color: "#FFFFFF"}
+  background: {blur: 24, dim: 0.35}  # fundo = o próprio vídeo desfocado e escurecido
+
+hotkeys:                           # globais, não bloqueiam o jogo nem o OBS
+  clip: f8                         # destaca o momento atual (janela marker_before_s/after_s)
+  pause: f11                       # pausa/retoma a edição (nunca a live)
+  episode_start: f6                # F6/F7 = episódio, F9/F10 = intervalo (agente 3)
+  episode_end: f7
+  break_start: f9
+  break_end: f10

@@ -1,0 +1,31 @@
+# (no .gitignore, comentários precisam ficar em linha própria)
+
+# --- segredos e dados pessoais: nunca vão para o GitHub ---
+.env
+# banco de dados, ajustes do painel (settings.json), modelos baixados, planos dos clipes
+data/
+
+# --- gravações, clipes e temporários ---
+recordings/
+output/
+work/
+logs/
+# vídeos de teste pessoais
+tests/fixtures/*.mkv
+tests/fixtures/e2e/
+*.mp4
+*.mkv
+*.zip
+
+# --- dependências instaladas (setup.cmd recria) ---
+.venv/
+hyperframes/node_modules/
+hyperframes/renders/
+__pycache__/
+*.pyc
+
+# --- sistema/editores ---
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

@@ -1,0 +1,7 @@
+# Dependências diretas. requirements.lock (fixado) é gerado com:
+#   uv pip compile requirements.in -o requirements.lock --python-version 3.13
+faster-whisper
+psutil
+pyyaml
+obsws-python
+keyboard
