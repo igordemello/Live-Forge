@@ -75,7 +75,7 @@ def worker(cfg, session, agents, folder, once=False, base=None):
     """cfg = config.yaml + panel overrides (data/settings.json); base = config.yaml alone (to re-merge live)."""
     from types import SimpleNamespace
 
-    from liveforge import chat, episodes, monitor, settings, shorts
+    from liveforge import chat, episodes, imports, monitor, settings, shorts
     from liveforge.llm import LLM
 
     base = base or load_config()
@@ -105,7 +105,7 @@ def worker(cfg, session, agents, folder, once=False, base=None):
         ctx.activity = {"what": what, "since": time.time()}
 
     STOP_FILE.unlink(missing_ok=True)
-    last_status, seen = 0, settings.mtime()
+    last_status, seen, look_at = 0, settings.mtime(), 0
     while not STOP_FILE.exists():
         if settings.mtime() != seen:  # panel saved new settings: apply without restarting
             seen = settings.mtime()
@@ -113,10 +113,17 @@ def worker(cfg, session, agents, folder, once=False, base=None):
             log.info("Ajustes do painel aplicados")
         cfg["session"]["current_game"] = guard.metrics().get("obs_game")  # game the OBS capture points at
         recording = guard.recording()
+        if not ingest and not once and time.time() >= look_at:  # started without OBS: attach when it shows up
+            look_at = time.time() + 15
+            if "monitor" in agents and (folder := resolve_folder(cfg, guard)):
+                guard.rec_dir, ingest = folder, Ingest(con, folder, session, cfg)
+                log.info("OBS encontrado: vigiando a gravação em %s", folder)
         if ingest:
             ingest.scan(recording)
         if "episodes" in agents:
             episodes.sync(con, session)
+        if "imports" in agents and not once:
+            imports.scan_folder(con)  # videos dropped into LiveForge\imports
         if time.time() - last_status > 300:
             last_status = time.time()
             print_status(con, session)
@@ -133,14 +140,24 @@ def worker(cfg, session, agents, folder, once=False, base=None):
             table, label = "episodes", f"montando episódio #{job['id']}"
             fn = lambda j: db.finish(con, "episodes", j["id"], "done",
                                      out_path=episodes.render_episode(con, j, cfg, guard, active, llm))
-        elif "shorts" in agents and (job := db.claim(con, "candidates", "priority desc, score desc, id")):
+        # live clips (priority >= 0) first, then one step of an imported video, then the imported videos' clips
+        elif "shorts" in agents and (job := db.claim(con, "candidates", "priority desc, score desc, id", "priority >= 0")):
             table, label = "candidates", f"editando clipe #{job['id']} (nota {job['score']}, {cfg['shorts']['renderer']})"
             fn = lambda j: db.finish(con, "candidates", j["id"], "done",
                                      out_path=shorts.render_candidate(con, j, cfg, guard, active))
+        elif "imports" in agents and (job := db.claim(con, "imports", "id")):
+            table, label = "imports", f"importando “{job['name']}” ({job['stage'] or 'iniciando'})"
+            fn = lambda j: db.finish(con, "imports", j["id"], "done" if imports.step(con, j, cfg, guard, llm) else "pending")
+        elif "shorts" in agents and (job := db.claim(con, "candidates", "priority desc, score desc, id")):
+            table, label = "candidates", f"editando clipe #{job['id']} (vídeo importado, nota {job['score']})"
+            fn = lambda j: db.finish(con, "candidates", j["id"], "done",
+                                     out_path=shorts.render_candidate(con, j, cfg, guard, active))
         if not job:
-            if once and not con.execute("select 1 from segments where status not in ('done','failed') union all select 1 from "
-                                        "candidates where status in ('pending','retry','deferred','running') union all select 1 "
-                                        "from episodes where status in ('pending','retry','deferred','running')").fetchone():
+            busy = " in ('pending','retry','deferred','running')"  # only queues an enabled agent will ever drain
+            q = [f"select 1 from {t} where status{busy}" for a, t in
+                 (("monitor", "segments"), ("shorts", "candidates"), ("episodes", "episodes"), ("imports", "imports"))
+                 if a in agents]
+            if once and not (q and con.execute(" union all ".join(q)).fetchone()):
                 break
             doing("aguardando gravação" if ingest else "ocioso")
             time.sleep(2)
@@ -196,19 +213,27 @@ def print_status(con, session):
 
 # ---------------------------------------------------------------- commands
 def resolve_folder(cfg, guard):
+    """Recording folder: config.yaml > OBS over WebSocket > OBS's saved profile (works with OBS closed) > None."""
     d = cfg["capture"]["directory"]
     if d and d != "auto":
-        return d
-    return guard.record_directory()
+        return d if Path(d).is_dir() else None
+    d = guard.record_directory() if obs_running() else None
+    if not d:
+        from liveforge.setup_checks import _get, obs_profile
+        _, basic = obs_profile()
+        d = _get(basic, "AdvOut", "RecFilePath") if basic is not None else None
+    return d if d and Path(d).is_dir() else None
 
 
 def cmd_run(cfg, agents, resume=False):
     con = db.connect()
-    last = con.execute("select session from segments order by id desc limit 1").fetchone()
+    last = con.execute("select session from segments where session not like 'import-%' and session not like 'offline-%' "
+                       "order by id desc limit 1").fetchone()
     session = last[0] if resume and last else datetime.datetime.now().strftime("%Y%m%d-%H%M")
     folder = resolve_folder(cfg, Guard(cfg, sample=False))
-    if not folder or not Path(folder).is_dir():
-        sys.exit("Pasta de gravação desconhecida: ative o WebSocket do OBS ou defina capture.directory no config.yaml")
+    if not folder:  # no OBS needed to import videos or edit clips: start anyway, attach to the live when OBS shows up
+        log.warning("Pasta de gravação do OBS não encontrada: rodando sem live (importar vídeos e editar clipes funcionam). "
+                    "Assim que o OBS abrir, a gravação passa a ser vigiada sozinha.")
     PID_FILE.write_text(str(os.getpid()))
     try:
         psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)  # children inherit: the live keeps priority
@@ -324,11 +349,26 @@ def main():
     setup_logging()
     cfg = settings.effective()  # config.yaml + ajustes feitos no painel
     ap = argparse.ArgumentParser(description="LiveForge")
-    ap.add_argument("command", choices=["doctor", "run", "resume", "process", "status"])
+    ap.add_argument("command", choices=["doctor", "run", "resume", "process", "import", "status"])
     ap.add_argument("target", nargs="?")
     ap.add_argument("--agents", default=",".join(cfg["session"]["agents"]))
     ap.add_argument("--dir", help="pasta de gravação (sobrepõe capture.directory)")
+    ap.add_argument("--clips", type=int, default=0, help="import: quantos Shorts (0 = automático)")
+    ap.add_argument("--mode", default="fit", choices=["fit", "fill", "template"], help="import: enquadramento")
+    ap.add_argument("--game", default="", help="import: jogo/tema do vídeo")
+    ap.add_argument("--min-score", type=int, default=70, help="import: nota mínima")
     a = ap.parse_args()
+    if a.command == "import":  # vídeo longo já editado -> Shorts prontos, e sai
+        if not a.target:
+            sys.exit("informe o vídeo: python main.py import CAMINHO.mp4")
+        from liveforge import imports
+        con = db.connect()
+        try:
+            iid, msg = imports.create(con, a.target, {"clips": a.clips, "mode": a.mode, "game": a.game, "min_score": a.min_score})
+        except ValueError as e:
+            sys.exit(f"Não deu para importar: {e}")
+        log.info(msg)
+        return worker(cfg, f"import-{iid}", ["imports", "shorts"], None, once=True)
     if a.dir:
         cfg["capture"]["directory"] = a.dir
     agents = [x.strip() for x in a.agents.split(",") if x.strip()]

@@ -1,7 +1,7 @@
 # LiveForge — padrões do projeto (vão para o GitHub). Seus ajustes pessoais ficam em data/settings.json,
 # feitos pelo painel (abas Configuração, Modelos, Contas) — não precisa editar este arquivo.
 session:
-  agents: [monitor, shorts, episodes]  # episodes só age quando você usa F6/F7
+  agents: [monitor, shorts, episodes, imports]  # episodes só age com F6/F7; imports só com vídeos importados
   language: pt
   game: auto                       # auto = nome da janela da Captura de jogo do OBS; ou escreva o nome (painel)
   hashtags: ["#gameplay", "#shorts", "#reels", "#tiktok"]  # a hashtag do jogo é adicionada sozinha
@@ -12,6 +12,7 @@ capture:
   directory: auto                  # auto = pasta de gravação informada pelo OBS (WebSocket); ou caminho absoluto
   audio_stream: 0                  # trilha do MKV com o áudio completo (vai para os clipes)
   transcribe_stream: null          # trilha só do microfone (ex.: 1); null = usa a completa. O painel detecta e ajusta.
+  mix_add_voice: false             # true = mistura a trilha do microfone no som dos clipes/episódios (se o mic não estiver na trilha completa)
   closed_after_seconds: 20         # arquivo mais recente sem crescer por N s = gravação encerrada
   lookback_hours: 8                # ao iniciar, ingere arquivos gravados nas últimas N horas
 
@@ -99,6 +100,11 @@ templates:                         # layout dos Shorts em 1080x1920 (edite visua
     caption: {y: 0.50, size: 80, color: "#FFDF00"}
     hook: {y: 0.28, size: 84, color: "#FFFFFF"}
   background: {blur: 24, dim: 0.35}  # fundo = o próprio vídeo desfocado e escurecido
+
+branding:                          # vinheta (sua introdução)
+  intro: null                      # vídeo da vinheta, ex.: assets/intro/minha_intro.mp4 (fica fora do Git)
+  short_end: true                  # no FIM de cada Short (vertical: corte central 9:16)
+  long_start: true                 # no COMEÇO de cada episódio (sem reencodar o episódio)
 
 hotkeys:                           # globais, não bloqueiam o jogo nem o OBS
   clip: f8                         # destaca o momento atual (janela marker_before_s/after_s)

@@ -27,6 +27,10 @@ create table if not exists episodes(
   id integer primary key, session text, key text unique, start_ms integer, end_ms integer,
   data text, status text default 'pending', attempts integer default 0, next_at real default 0,
   error text, out_path text, created real);
+create table if not exists imports(
+  id integer primary key, key text, path text, name text, status text default 'pending', stage text, progress integer default 0,
+  options text, created real, duration_ms integer, width integer, height integer, segment_id integer, clips integer,
+  attempts integer default 0, next_at real default 0, error text);
 create table if not exists markers(
   id integer primary key, session text, at_ms integer, kind text, used integer default 0);
 create table if not exists llm_calls(
@@ -53,15 +57,15 @@ def connect() -> sqlite3.Connection:
 
 def recover(con):
     # ponytail: single worker process, so "running" after a restart means it died mid-job; no leases/heartbeats needed.
-    for t in ("segments", "candidates", "episodes"):
+    for t in ("segments", "candidates", "episodes", "imports"):
         con.execute(f"update {t} set status='retry' where status='running'")
 
 
-def claim(con, table, order="id"):
+def claim(con, table, order="id", where="1=1"):
     """Take the next runnable job (pending/retry/deferred whose time has come) and mark it running."""
     row = con.execute(
-        f"select * from {table} where status in ('pending','retry','deferred') and next_at<=? order by {order} limit 1",
-        (time.time(),)).fetchone()
+        f"select * from {table} where status in ('pending','retry','deferred') and next_at<=? and {where} "
+        f"order by {order} limit 1", (time.time(),)).fetchone()
     if row:
         con.execute(f"update {table} set status='running', attempts=attempts+1 where id=?", (row["id"],))
     return row

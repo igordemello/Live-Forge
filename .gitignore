@@ -29,3 +29,6 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# vídeos importados para virar Shorts (aba Importar / pasta imports)
+imports/

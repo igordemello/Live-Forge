@@ -4,6 +4,7 @@ import copy
 import json
 import os
 import re
+from pathlib import Path
 
 from .core import ROOT, load_config
 
@@ -78,6 +79,17 @@ def _stream(v):
     return None if v is None else _num(0, 5, int)(v)
 
 
+def _video_path(v):
+    if v in (None, ""):
+        return None
+    if not isinstance(v, str) or len(v) > 400:
+        raise ValueError("caminho inválido")
+    f = Path(v) if Path(v).is_absolute() else ROOT / v
+    if f.suffix.lower() not in (".mp4", ".mov", ".mkv", ".webm") or not f.is_file():
+        raise ValueError("arquivo de vídeo não encontrado (mp4, mov, mkv ou webm)")
+    return v
+
+
 def _hashtags(v):
     if not isinstance(v, list) or len(v) > 15 or not all(isinstance(t, str) and 1 < len(t) <= 40 for t in v):
         raise ValueError("lista de até 15 hashtags")
@@ -93,8 +105,9 @@ SCHEMA = {
     "shorts": {"template": _enum(*TEMPLATES), "webcam_box": _box(1920, 1080), "game_box": _box(1920, 1080),
                "trim_pauses": _bool, "renderer": _enum("hyperframes", "ffmpeg_ass")},
     "session": {"game": _text(60), "hashtags": _hashtags, "vocabulary": _words},
-    "capture": {"audio_stream": _num(0, 5, int), "transcribe_stream": _stream},
+    "capture": {"audio_stream": _num(0, 5, int), "transcribe_stream": _stream, "mix_add_voice": _bool},
     "chat": {"enabled": _bool, "channel": _channel},
+    "branding": {"intro": _video_path, "short_end": _bool, "long_start": _bool},
     "models": {"pause_at_5h_pct": _num(10, 100, int), "pause_at_7d_pct": _num(10, 100, int), "max_calls_hour": _num(0, 200, int)},
 }
 

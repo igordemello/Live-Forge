@@ -10,14 +10,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import db
+from . import db, imports
 from .core import ROOT
 
 OUT = (ROOT / "output").resolve()
 HTML = ROOT / "liveforge" / "panel.html"
 LOG = ROOT / "logs" / "liveforge.log"
 KINDS = ("clip", "episode_start", "episode_end", "break_start", "break_end")
-FOLDERS = {"review": OUT / "review", "episodes": OUT / "episodes", "logs": ROOT / "logs"}
+FOLDERS = {"review": OUT / "review", "episodes": OUT / "episodes", "logs": ROOT / "logs", "imports": imports.DIR}
 TABLES = {"candidates", "episodes"}
 MIME = {".mp4": "video/mp4", ".jpg": "image/jpeg", ".json": "application/json", ".srt": "text/plain; charset=utf-8"}
 _sidecar = {}  # (path, mtime) -> parsed json
@@ -68,6 +68,8 @@ def _item(r, table):
     if table == "candidates":
         it.update(score=r["score"], priority=r["priority"], hook=d.get("hook_text"),
                   category=d.get("category"), reason=d.get("reason"), source=d.get("source"))
+        if str(r["session"]).startswith("import-"):  # clip farmed from an imported video
+            it.update(import_id=d.get("import_id"), import_name=d.get("import_name"), pos_s=d.get("pos_s"))
     if r["status"] == "done" and r["out_path"]:
         it["mp4"] = _rel(r["out_path"])
         try:
@@ -194,6 +196,12 @@ def make_handler(ctx, allowed):
                     self._send(HTML.read_bytes(), "text/html; charset=utf-8")
                 elif path == "/api/state":
                     self._json(build_state(ctx))
+                elif path == "/api/imports":
+                    con = db.connect()
+                    try:
+                        self._json({"imports": imports.list_imports(con)})
+                    finally:
+                        con.close()
                 elif path == "/api/setup":
                     from liveforge import setup_checks
                     self._json({"items": setup_checks.run_checks(ctx.cfg, ctx.guard, force="force" in qs)})
@@ -228,13 +236,30 @@ def make_handler(ctx, allowed):
                         self._err(404, "fonte não encontrada")
                 elif path == "/api/accounts":
                     self._json(accounts(ctx))
-                elif (m := re.fullmatch(r"/api/candidates/(\d+)/captions", path)):
+                elif (m := re.fullmatch(r"/api/candidates/(\d+)/edit", path)):
                     from liveforge import shorts
                     con = db.connect()
                     try:
-                        self._json(shorts.load_captions(con, int(m[1])))
+                        self._json(shorts.load_edit(con, int(m[1]), ctx.cfg))
                     finally:
                         con.close()
+                elif (m := re.fullmatch(r"/api/candidates/(\d+)/context\.mp4", path)):
+                    from liveforge import shorts
+                    con = db.connect()
+                    try:
+                        p = shorts.context_preview(con, int(m[1]), ctx.cfg)
+                    except ValueError as e:
+                        return self._err(404, str(e))
+                    finally:
+                        con.close()
+                    self._file(Path(p))
+                elif (m := re.fullmatch(r"/api/sfx/([^/]+)\.wav", path)):
+                    from liveforge import shorts
+                    name = unquote(m[1])
+                    if name in shorts._sounds():  # allowlist: no path tricks possible
+                        self._send((shorts.SFX / f"{name}.wav").read_bytes(), "audio/wav")
+                    else:
+                        self._err(404, "não encontrado")
                 elif path.startswith("/media/"):
                     self._media(unquote(path[7:]))
                 else:
@@ -257,6 +282,9 @@ def make_handler(ctx, allowed):
                     raise ValueError
             except (ValueError, OSError):
                 return self._err(404, "não encontrado")
+            self._file(p)
+
+        def _file(self, p):
             size = p.stat().st_size
             a, b, code = 0, size - 1, 200
             rg = self.headers.get("Range")
@@ -292,6 +320,59 @@ def make_handler(ctx, allowed):
                         break
                     self.wfile.write(chunk)
                     left -= len(chunk)
+
+        def do_PUT(self):
+            """Stream an uploaded video into imports/ (chunked to <name>.part, renamed when complete)."""
+            if not self._guard(True):
+                return
+            u = urlparse(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            part = None
+            try:
+                if u.path != "/api/imports/upload":
+                    raise _Err(404, "não encontrado")
+                raw = (parse_qs(u.query).get("name") or [""])[0]
+                parts = re.split(r"[\\/]", raw)
+                name = re.sub(r"[^\w .()\-]", "_", parts[-1]).strip(" .")
+                if ".." in parts or not name or Path(name).suffix.lower() not in imports.VIDEO_EXT:
+                    raise _Err(400, "nome de arquivo inválido (use mp4, mkv, mov, webm, avi ou m4v)")
+                if not 0 < n <= 64 * 2 ** 30:
+                    raise _Err(411 if not n else 413, "tamanho do arquivo ausente ou acima de 64 GB")
+                imports.DIR.mkdir(parents=True, exist_ok=True)
+                stem, ext, k = Path(name).stem, Path(name).suffix, 1
+                while True:  # exclusive create reserves the name; never overwrite an existing video
+                    dest = imports.DIR / (name if k == 1 else f"{stem} ({k}){ext}")
+                    part = Path(str(dest) + ".part")
+                    if not dest.exists():
+                        try:
+                            f = open(part, "xb")
+                            break
+                        except FileExistsError:
+                            pass
+                    k += 1
+            except _Err as e:
+                self.close_connection = True  # body left unread
+                return self._err(e.code, e.msg)
+            try:
+                with f:
+                    left = n
+                    while left > 0:
+                        chunk = self.rfile.read(min(1 << 20, left))
+                        if not chunk:
+                            raise ConnectionError("upload interrompido")
+                        f.write(chunk)
+                        left -= len(chunk)
+                os.replace(part, dest)
+                part = None
+                self._json({"path": str(dest.resolve())})
+            except (OSError, ConnectionError) as e:
+                self.close_connection = True
+                if part:
+                    part.unlink(missing_ok=True)
+                try:
+                    self._err(500, f"falha ao salvar: {e}")
+                except OSError:
+                    pass
 
         def do_POST(self):
             if not self._guard(True):
@@ -364,6 +445,22 @@ def make_handler(ctx, allowed):
                 FOLDERS[p[2]].mkdir(parents=True, exist_ok=True)
                 os.startfile(FOLDERS[p[2]])
                 return {"message": "Pasta aberta"}
+            if p[1] == "imports" and len(p) == 2:
+                d = self._json_body(body)
+                if not isinstance(d, dict) or not isinstance(d.get("path"), str):
+                    raise _Err(400, "informe o caminho do vídeo")
+                con = db.connect()
+                try:
+                    iid, msg = imports.create(con, d["path"], d.get("options") if isinstance(d.get("options"), dict) else None)
+                finally:
+                    con.close()
+                return {"id": iid, "message": msg}
+            if p[1] == "imports" and len(p) == 4 and p[2].isdigit() and p[3] == "cancel":
+                con = db.connect()
+                try:
+                    return {"message": imports.cancel(con, int(p[2]))}
+                finally:
+                    con.close()
             if len(p) == 4 and p[1] in TABLES and p[2].isdigit():
                 t, i, a = p[1], int(p[2]), p[3]
                 if a == "delete":
@@ -375,14 +472,14 @@ def make_handler(ctx, allowed):
                         raise _Err(409, str(e)) from None
                     finally:
                         con.close()
-                if a == "captions" and t == "candidates":
+                if a == "edit" and t == "candidates":
                     from liveforge import shorts
                     d = self._json_body(body)
                     if not isinstance(d, dict):
                         raise _Err(400, "JSON inválido")
                     con = db.connect()
                     try:
-                        return {"message": shorts.edit_captions(con, i, d.get("groups"), d.get("hook_text") or "")}
+                        return {"message": shorts.save_edit(con, i, d, ctx.cfg)}
                     finally:
                         con.close()
                 if (t, a) not in RULES:

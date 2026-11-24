@@ -116,18 +116,37 @@ def render_episode(con, ep, cfg, guard, recording_active, llm):
                        f"(reserva episodes.keep_free_gb = {cfg['episodes']['keep_free_gb']} GB)")
     from .shorts import _guarded
     # ponytail: stream copy cuts on keyframes (±1-2 s at the edges); re-encode only if exact edges ever matter
-    _guarded(run, guard, ["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "list.ffconcat", "-map", "0:v:0",
-                          "-map", f"0:a:{cfg['capture']['audio_stream']}", "-c", "copy", "-avoid_negative_ts", "make_zero",
-                          "-movflags", "+faststart", raw.name], 3600, wd)
+    cap = cfg["capture"]
+    if cap.get("mix_add_voice") and cap.get("transcribe_stream") is not None:  # mic not on the full mix: add it (audio only re-encoded)
+        audio = ["-filter_complex", f"[0:a:{cap['audio_stream']}][0:a:{cap['transcribe_stream']}]amix=inputs=2:normalize=0[a]",
+                 "-map", "0:v:0", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000"]
+    else:
+        audio = ["-map", "0:v:0", "-map", f"0:a:{cap['audio_stream']}", "-c", "copy"]
+    _guarded(run, guard, ["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "list.ffconcat", *audio,
+                          "-avoid_negative_ts", "make_zero", "-movflags", "+faststart", raw.name], 3600, wd)
     dur_s = float(probe(raw)["format"]["duration"])
+    intro_s = 0.0
+    if (cfg.get("branding") or {}).get("long_start"):  # your intro in front, joined by stream copy
+        from . import intro
+        try:
+            vin = intro.long_variant(cfg, raw)
+            if vin and intro.compatible(vin, raw):
+                joined = wd / "episode_intro.mp4"
+                intro_s = _guarded(intro.prepend_to_episode, guard, vin, raw, joined, wd) or 0.0
+                joined.replace(raw)
+            elif vin:
+                warnings.append("vinheta não adicionada: formato diferente da gravação")
+        except (RuntimeError, OSError) as e:
+            warnings.append(f"vinheta não adicionada: {str(e)[:120]}")
+            intro_s = 0.0
 
-    def ep_time(t):  # absolute ms -> seconds in the episode
+    def ep_time(t):  # absolute ms -> seconds in the final episode (after the intro)
         acc = 0
         for a, b in keep:
             if t < a:
                 return None
             if t <= b:
-                return (acc + t - a) / 1000
+                return intro_s + (acc + t - a) / 1000
             acc += b - a
         return None
 
@@ -146,6 +165,7 @@ def render_episode(con, ep, cfg, guard, recording_active, llm):
     if not meta:
         meta = {"title": f"{game} — Episódio {n}", "description": "",
                 "chapters": [{"t_s": t, "title": f"Parte {i + 1}"} for i, t in enumerate(range(0, int(dur_s), 600))]}
+    dur_s += intro_s  # transcript times above already include the intro
     chapters = clean_chapters(meta["chapters"], dur_s)
     hashtags = [h for h in all_hashtags(cfg) if h.lower() not in ("#shorts", "#reels", "#tiktok")]
     tags = [t.lstrip("#") for t in hashtags]
@@ -176,8 +196,9 @@ def render_episode(con, ep, cfg, guard, recording_active, llm):
 
     out.with_suffix(".json").write_text(json.dumps({
         "title": meta["title"][:100], "description": desc, "chapters": chapters, "hashtags": hashtags,
-        "tags": tags, "duration_s": round(dur_s), "live_start": f"{when:%Y-%m-%d %H:%M:%S}",
+        "tags": tags, "duration_s": round(dur_s), "live_start": f"{when:%Y-%m-%d %H:%M:%S}", "intro_s": round(intro_s, 1),
         "breaks_removed": len(brk), "warnings": warnings}, ensure_ascii=False, indent=1), encoding="utf-8")
     shutil.rmtree(wd, ignore_errors=True)
-    log.info("Agente 3: episódio pronto (%s, %d intervalos removidos) -> %s", fmt(dur_s), len(brk), out.name)
+    log.info("Agente 3: episódio pronto (%s, %d intervalos removidos%s) -> %s", fmt(dur_s), len(brk),
+             ", com vinheta" if intro_s else "", out.name)
     return str(out)

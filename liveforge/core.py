@@ -30,6 +30,12 @@ def load_config(path=None) -> dict:
 
 def setup_logging():
     (ROOT / "logs").mkdir(exist_ok=True)
+    import sys
+    for s in (sys.stdout, sys.stderr):  # Windows consoles (cp1252/cp850) choke on characters like "→"
+        try:
+            s.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(message)s",
@@ -140,20 +146,28 @@ def video_encoder_args() -> list:
     return ["-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-threads", "4"]
 
 
-def cut_clip(parts, out, fps=30, audio_stream=0, voice=None):
+def cut_clip(parts, out, fps=30, audio_stream=0, voice=None, add_voice=None):
     """parts = [(path, offset_s, dur_s), ...] in order; re-encodes to one continuous 1080p clip.
-    voice = (stream_index, wav_path): also writes that audio track (e.g. mic only) as 16 kHz mono WAV, same timeline."""
+    voice = (stream_index, wav_path): also writes that audio track (e.g. mic only) as 16 kHz mono WAV, same timeline.
+    add_voice = stream index mixed into the clip audio (when the mic isn't on the full-mix track)."""
     args = ["ffmpeg", "-y", "-v", "error"]
     for path, off, dur in parts:
         args += ["-ss", f"{off:.3f}", "-t", f"{dur:.3f}", "-i", path]
-    n = len(parts)
+    n, fc = len(parts), []
+
+    def base(i):  # the clip soundtrack of input i, with the voice track mixed in if asked
+        if add_voice is None:
+            return f"[{i}:a:{audio_stream}]"
+        fc.append(f"[{i}:a:{audio_stream}][{i}:a:{add_voice}]amix=inputs=2:normalize=0:duration=longest[m{i}]")
+        return f"[m{i}]"
+
     if n == 1:
-        maps, vo, fc = ["-map", "0:v:0", "-map", f"0:a:{audio_stream}"], voice and f"0:a:{voice[0]}", []
+        b = base(0)
+        maps, vo = ["-map", "0:v:0", "-map", b if add_voice is not None else f"0:a:{audio_stream}"], voice and f"0:a:{voice[0]}"
     else:  # 15 ms audio fades at every join so trimmed pauses don't click
-        fades = ";".join(f"[{i}:a:{audio_stream}]afade=t=in:d=0.015,afade=t=out:st={max(0, d - 0.015):.3f}:d=0.015[a{i}]"
-                         for i, (_, _, d) in enumerate(parts))
-        chain = "".join(f"[{i}:v:0][a{i}]" for i in range(n))
-        fc = [f"{fades};{chain}concat=n={n}:v=1:a=1[v][a]"]
+        for i, (_, _, d) in enumerate(parts):
+            fc.append(f"{base(i)}afade=t=in:d=0.015,afade=t=out:st={max(0, d - 0.015):.3f}:d=0.015[a{i}]")
+        fc.append("".join(f"[{i}:v:0][a{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[v][a]")
         if voice:
             fc.append("".join(f"[{i}:a:{voice[0]}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[vo]")
         maps, vo = ["-map", "[v]", "-map", "[a]"], voice and "[vo]"

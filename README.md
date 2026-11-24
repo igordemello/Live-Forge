@@ -40,6 +40,22 @@ Com tudo numa trilha só, a transcrição mistura sua fala com diálogos do jogo
 3. Grave 10 s, e no painel (Configuração → Áudio) clique em **Usar trilhas detectadas**.
 Os clipes continuam com o som completo; legenda e detecção usam só a sua voz.
 
+## Importar vídeo longo → Shorts (aba Importar)
+Envie um vídeo **já editado** (ex.: episódio de 20–60 min) e o LiveForge devolve os melhores momentos como Shorts prontos:
+1. Transcreve o vídeo inteiro em blocos de 10 min (≈15 min de CPU por hora de vídeo; cede a vez para a live).
+2. O **Claude Sonnet lê a transcrição completa de uma vez** (1 chamada por vídeo, pela assinatura) e escolhe trechos de 20–60 s que funcionam sozinhos — começando no gancho, terminando no desfecho, sem repetir piada e ignorando abertura/patrocínio.
+3. Cada trecho vira um Short com legenda sincronizada, zoom, sons e sua vinheta — sem cortar pausas (o vídeo já tem o seu ritmo). Os clipes aparecem em *Ao vivo → Clipes → Importados* e podem ser ajustados no **Editar clipe**.
+
+Opções: quantidade (automático ≈ 1 a cada 2 min), enquadramento (**inteiro + fundo desfocado**, **preencher a tela** cortando as laterais, ou **igual aos clipes da live** com rosto em cima), nota mínima e jogo/tema. Durante uma live, os clipes da live sempre passam na frente.
+
+Atalhos: arraste o vídeo na aba Importar, informe o caminho (importa sem copiar), solte o arquivo na pasta `imports/` (entra sozinho), ou pela linha de comando:
+```bash
+.venv\Scripts\python main.py import "D:\Videos\episodio.mp4" --clips 10 --mode fit --game "GTA VI"
+```
+
+## Vinheta (sua introdução)
+Coloque seu vídeo em `assets/intro/` (fica fora do Git) e informe o caminho no painel (*Configuração → Sessão → Vinheta*). Ela entra **no fim de cada Short** (versão vertical: corte central 9:16, áudio normalizado) e **no começo de cada episódio** (versão no mesmo formato da gravação, emendada sem reencodar o episódio). As versões ficam em cache em `data/intro_cache/`.
+
 ## OBS (o checklist confere tudo isso)
 WebSocket ativado (*Ferramentas → Configurações do servidor WebSocket*) · Saída no modo Avançado · gravação em **MKV** com **divisão automática a cada 3 min** · *Geral → Gravar automaticamente quando estiver transmitindo* · pasta de gravação num disco com espaço (1080p60 em CQP 18 ≈ 16 GB/h).
 

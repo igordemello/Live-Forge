@@ -75,14 +75,50 @@ section.tab{display:none}section.tab.on{display:block}
 .box h3{margin:0 0 8px;font-size:15px}
 button.del{color:#ffb4b4}
 textarea{font:inherit;color:var(--tx);background:#0f1115;border:1px solid var(--line);border-radius:5px;padding:4px 6px;width:100%;max-width:520px}
-#cdlg{max-width:1100px;width:96vw;max-height:94vh;overflow:auto}
-#cwrap{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:16px;align-items:start}
-#cvid{width:100%;max-height:72vh;background:#000;aspect-ratio:9/16;object-fit:contain}
-#clines{max-height:52vh;overflow:auto;margin:8px 0}
-.cl{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:3px 4px;border-radius:5px;border:1px solid transparent}
-.cl.cur{background:#1f4a6e;border-color:var(--acc)}.cl.bad{border-color:var(--bad)}
-.cl input[type=text]{flex:1;min-width:120px}.cl input[type=number]{width:68px}.cl button{padding:3px 7px;font-size:12px;white-space:nowrap}
-@media(max-width:800px){#cwrap{grid-template-columns:1fr}}
+#cdlg{width:95vw;max-width:none;height:90vh;max-height:none;padding:10px 14px;overflow:auto}
+#cdlg[open]{display:flex;flex-direction:column;gap:8px}
+#ehd{display:flex;gap:12px;align-items:baseline}#ehd h3{margin:0}
+#etop{flex:1;min-height:0;display:flex;gap:18px;align-items:flex-start}
+#evw{flex:none;width:max-content;max-width:40%}
+#estage{position:relative;height:max(200px,calc(90vh - 340px));aspect-ratio:9/16;background:#000;user-select:none;touch-action:none}
+#cvid{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+#xh{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid #ff4fa3;border-radius:50%;pointer-events:none;display:none;box-shadow:0 0 0 1px #000}
+#xh:before,#xh:after{content:"";position:absolute;background:#ff4fa3}#xh:before{left:50%;top:-6px;bottom:-6px;width:2px;margin-left:-1px}#xh:after{top:50%;left:-6px;right:-6px;height:2px;margin-top:-1px}
+#eside{flex:1;min-width:260px;max-width:760px;min-height:0;display:flex;flex-direction:column;gap:8px;overflow:auto;max-height:calc(90vh - 300px)}
+#etabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}#etabs button{border-radius:6px 6px 0 0;border-bottom:0;padding:4px 12px}#etabs button.on{background:var(--acc);color:#001;font-weight:600}
+.epane{display:flex;flex-direction:column;gap:8px}.epane[hidden],#eprop[hidden]{display:none}
+#eprop{display:flex;flex-direction:column;gap:8px}
+#capline{position:absolute;left:0;right:0;height:0;border-top:2px dashed #ff4fa3;pointer-events:none;display:none;z-index:3}
+#cxv{width:100%;max-height:200px;background:#000}
+#cxbar{position:relative;height:36px;background:#0f1115;border:1px solid var(--line);border-radius:4px;cursor:pointer;touch-action:none;user-select:none}
+#cxbar .o{position:absolute;top:0;bottom:0;background:#ffffff1a;border-left:1px dashed #888;border-right:1px dashed #888;pointer-events:none}
+#cxbar .c{position:absolute;top:6px;bottom:6px;background:#2d5a8aaa;border:1px solid var(--acc);pointer-events:none}
+#cxbar .h{position:absolute;top:0;bottom:0;width:12px;margin-left:-6px;background:var(--acc);border-radius:3px;cursor:ew-resize;z-index:2}
+#cxbar .p{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#ff5a5a;pointer-events:none;z-index:3}
+#cxrd{font-size:13px;font-variant-numeric:tabular-nums}
+.nud{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.nud b{width:48px;font-size:12px;color:var(--mut)}.nud button{padding:2px 7px;font-size:12px}
+.epane .row{align-items:center}.epane input[type=text]{width:100%}.epane textarea{max-width:none;min-height:90px}
+#eprop .row{align-items:flex-end}#eprop input[type=text]{width:100%}
+#etb{display:flex;gap:6px;flex-wrap:wrap;align-items:center}#etb button{padding:4px 9px}
+#etb .tm{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--mut)}
+#tl{display:flex;border:1px solid var(--line);border-radius:6px;background:#0f1115;flex:none}
+#tlab{flex:none;width:64px;font-size:11px;color:var(--mut)}#tlab div{height:34px;padding:0 6px;display:flex;align-items:center;border-top:1px solid var(--line)}#tlab div:first-child{height:22px;border-top:0}
+#tls{flex:1;overflow-x:auto;overflow-y:hidden;position:relative}
+#tlin{position:relative;touch-action:none;user-select:none}
+#rul{height:22px;position:relative;cursor:pointer;border-bottom:1px solid var(--line)}
+#rul i{position:absolute;top:12px;bottom:0;width:1px;background:var(--line)}#rul b{position:absolute;top:0;font-size:10px;font-weight:400;color:var(--mut);margin-left:3px}
+.trk{height:34px;position:relative;border-top:1px solid var(--line);box-sizing:border-box}
+#phd{position:absolute;top:0;bottom:0;left:0;width:0;pointer-events:none;z-index:5}
+#phd:before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:2px;background:#ff5a5a}
+#phd:after{content:"";position:absolute;left:-6px;top:0;border:6px solid transparent;border-top-color:#ff5a5a}
+.bk{position:absolute;top:3px;height:27px;border-radius:4px;overflow:hidden;white-space:nowrap;font-size:12px;line-height:27px;padding:0 8px;cursor:grab;touch-action:none;color:#fff}
+.bk.cap{background:#2d5a8a}.bk.zoom{background:#7a4fb0}.bk.hook{background:#8a6d1a;cursor:pointer}.bk.hook.empty{opacity:.35}
+.bk.sfx{padding:0 2px;overflow:visible;color:var(--tx);background:#ffffff14}.bk.sfx b{color:var(--warn);margin-right:4px}
+.bk.bad{background:var(--bad)}.bk.sel{outline:2px solid #fff;outline-offset:1px;z-index:2}
+.rh{position:absolute;top:0;bottom:0;width:8px;cursor:ew-resize}.rh.l{left:0}.rh.r{right:0}
+#efoot{display:flex;gap:10px;align-items:center;justify-content:flex-end}#efoot .merr{margin:0;flex:1}
+input[type=range]{vertical-align:middle}
+@media(max-width:800px){#etop{flex-direction:column}#evw{max-width:none}}
 .prog{height:10px;background:#262b36;border-radius:5px;overflow:hidden;margin:6px 0 4px}.prog i{display:block;height:100%;background:var(--ok)}
 .ck{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.ck:first-of-type{border-top:0}
 .ck .ic{font-weight:700;width:18px;flex:none;text-align:center}.ck.ok .ic{color:var(--ok)}.ck.todo .ic{color:var(--bad)}.ck.optional .ic{color:var(--mut)}
@@ -125,13 +161,19 @@ dialog::backdrop{background:#000a}
 .merr{color:var(--bad);font-size:13px;margin:6px 0}
 .sw{display:flex;gap:8px;align-items:center;margin:6px 0}
 @media(max-width:900px){#mwrap{grid-template-columns:1fr}}
+#idrop{border:2px dashed var(--line);border-radius:10px;padding:34px 14px;text-align:center;font-size:17px;cursor:pointer;margin-top:12px}
+#idrop:hover,#idrop.over,#idrop:focus-visible{border-color:var(--acc);background:#4da3ff14;outline:0}
+#idrop.busy{opacity:.5;pointer-events:none}
+.ic2{border-top:1px solid var(--line);padding:10px 0}.ic2:first-child{border-top:0}
+.ic2 .row{justify-content:space-between;align-items:flex-start}
+.ic2 .ok2{color:var(--ok)}
 </style>
 </head>
 <body>
 <main>
 <div id="offline" role="alert">Sem conexão com o LiveForge. Tentando novamente...</div>
 <nav id="nav" aria-label="Seções">
-  <a href="#ao-vivo" data-tab="ao-vivo">Ao vivo</a><a href="#configuracao" data-tab="configuracao">Configuração</a>
+  <a href="#ao-vivo" data-tab="ao-vivo">Ao vivo</a><a href="#importar" data-tab="importar">Importar</a><a href="#configuracao" data-tab="configuracao">Configuração</a>
   <a href="#uso" data-tab="uso">Uso do Claude</a><a href="#modelos" data-tab="modelos">Modelos</a><a href="#contas" data-tab="contas">Contas</a>
   <a id="cchip" href="#uso" title="Janela de 5 h da assinatura do Claude">Claude: -</a>
 </nav>
@@ -176,6 +218,28 @@ dialog::backdrop{background:#000a}
 <div id="log" tabindex="0" aria-label="Últimas linhas do log"></div>
 </section>
 
+<section class="tab" id="t-importar">
+  <div class="box"><h3>Novo vídeo</h3>
+    <div class="row" style="align-items:flex-start">
+      <label class="fld">Quantos Shorts<select id="ioclips"><option value="0">Automático (≈ 1 a cada 2 min)</option><option>5</option><option>10</option><option>15</option><option>20</option><option>30</option></select></label>
+      <label class="fld">Enquadramento<select id="iomode"><option value="fit">Inteiro + fundo desfocado</option><option value="fill">Preencher a tela (corta as laterais)</option><option value="template">Igual aos clipes da live (rosto em cima)</option></select>
+        <span id="iomh" style="max-width:260px"></span></label>
+      <label class="fld">Nota mínima: <b id="iominv"></b><input type="range" id="iomin" min="50" max="90" step="1"><span>maior = menos clipes, só os melhores</span></label>
+      <label class="fld">Jogo/tema (opcional)<input type="text" id="iogame" maxlength="60" placeholder="ex.: GTA RP"><span>ajuda o título e as hashtags</span></label>
+    </div>
+    <div id="idrop" tabindex="0" role="button">Arraste o vídeo aqui ou clique para escolher<div class="small">mp4, mkv, mov, webm, avi ou m4v; o arquivo é copiado para a pasta imports</div></div>
+    <input type="file" id="ifile" accept="video/*,.mkv,.m4v" hidden>
+    <div id="iupw" style="display:none;margin-top:10px"><div class="row"><b id="iupn"></b><button type="button" id="iupc">Cancelar envio</button></div>
+      <div class="prog"><i id="iupb" style="width:0"></i></div><div class="small" id="iupt"></div></div>
+    <div class="row" style="margin-top:12px"><label class="fld" style="flex:1;min-width:260px">Caminho do vídeo no PC<input type="text" id="ipath" placeholder="D:\Videos\episodio.mp4"></label>
+      <button type="button" class="pri" id="ipgo" style="align-self:flex-end">Importar sem copiar</button></div>
+    <div class="row small" style="margin-top:10px">Ou solte vídeos na pasta LiveForge\imports: entram sozinhos com as opções padrão. <button type="button" data-open="imports">Abrir pasta imports</button></div>
+  </div>
+  <div class="box"><h3>Importações</h3><div id="implist"></div><div class="mut" id="impempty">Nenhuma importação ainda.</div></div>
+  <div class="box"><h3>Como funciona</h3>
+    <div class="small" style="font-size:13px">1) O vídeo é transcrito (≈ 15 min de CPU por hora de vídeo; cede a vez para a live). 2) O Claude (Sonnet, 1 chamada por vídeo) lê o vídeo inteiro e escolhe momentos que funcionam sozinhos, com gancho. 3) Cada Short é feito com legendas, zoom, sons e a sua vinheta. Os clipes prontos aparecem em Ao vivo → Clipes (filtro Importados) e podem ser ajustados com "Editar clipe".</div></div>
+</section>
+
 <section class="tab" id="t-configuracao">
   <div class="box" id="sescard"><h3>Sessão</h3>
     <b>Jogo da live</b>
@@ -185,6 +249,11 @@ dialog::backdrop{background:#000a}
     <div style="margin-top:12px"><b>Vocabulário da transcrição</b></div>
     <textarea id="svoc" rows="5" placeholder="um nome ou termo por linha"></textarea>
     <div class="small">A transcrição usa essa lista para acertar nomes e termos. Um por linha: nomes de amigos, termos do jogo, gírias (até 60, 40 letras cada).</div>
+    <div style="margin-top:12px"><b>Vinheta (sua introdução)</b></div>
+    <input type="text" id="sintro" maxlength="400" placeholder="ex.: assets/intro/minha_intro.mp4 (vazio = sem vinheta)" style="width:100%">
+    <label class="sw"><input type="checkbox" id="sintroS"> No fim de cada Short</label>
+    <label class="sw"><input type="checkbox" id="sintroL"> No começo de cada episódio</label>
+    <div class="small">Caminho do vídeo dentro da pasta do LiveForge (ou caminho completo). Vale para os próximos clipes.</div>
     <div class="row" style="margin-top:8px"><button type="button" class="pri" id="ssave">Salvar</button><span class="merr" id="serr"></span></div></div>
   <div class="box"><h3>Pronto para a live?</h3><div id="cfsum" class="mut">Verificando...</div><div class="prog"><i id="cfbar" style="width:0"></i></div>
     <button type="button" id="cfre">Verificar de novo</button></div>
@@ -240,14 +309,52 @@ dialog::backdrop{background:#000a}
 </section>
 </main>
 <dialog id="dlg"><div id="dtx" style="margin-bottom:14px"></div><div class="row" style="justify-content:flex-end"><button type="button" id="dno">Cancelar</button><button type="button" class="pri" id="dok">Confirmar</button></div></dialog>
-<dialog id="cdlg"><h3 style="margin:0 0 8px">Editar legenda <span class="small" id="ctitle"></span></h3>
-  <div id="cwrap"><video id="cvid" controls preload="metadata"></video>
-    <div><label class="fld">Texto de gancho (0–1,8 s), vazio = sem gancho<input type="text" id="chook" maxlength="28"></label>
-      <div id="clines"></div>
-      <div class="row"><button type="button" id="cadd">+ Linha no tempo atual</button></div>
-      <div class="small" style="margin:8px 0">Mesmo número de palavras e mesmos tempos = sincronização original palavra por palavra; se mudar tempos ou palavras, o destaque das palavras é redistribuído na linha. Use "⇤ agora" / "agora ⇥" com o vídeo parado no ponto certo para acertar a sincronia de ouvido. O texto sai em maiúsculas.</div>
-      <div class="merr" id="cerr"></div>
-      <div class="row" style="justify-content:flex-end"><button type="button" id="cno">Cancelar</button><button type="button" class="pri" id="cok">Salvar e refazer o clipe</button></div></div></div></dialog>
+<dialog id="cdlg"><div id="ehd"><h3>Editar clipe <span class="small" id="ctitle"></span></h3><span class="warn" id="edirty"></span></div>
+  <div id="etop">
+    <div id="evw"><div id="estage"><video id="cvid" preload="auto"></video><i id="xh"></i><i id="capline"></i></div>
+      <div class="small" style="margin-top:6px">A prévia é o clipe atual; as mudanças aparecem quando ele for refeito (~1 min).</div></div>
+    <div id="eside"><div id="etabs"><button type="button" data-tab="item" class="on">Item</button><button type="button" data-tab="cut">Corte</button><button type="button" data-tab="opt">Opções</button><button type="button" data-tab="pub">Publicação</button></div>
+      <div id="eprop"></div>
+      <div class="epane" id="ecut" hidden>
+        <div class="small">Mostra a gravação ao redor do clipe. Arraste as alças azuis (ou use os botões) para começar mais cedo ou terminar mais tarde. A faixa clara tracejada é o corte original.</div>
+        <div id="cxld" class="mut">Carregando a gravação ao redor…</div>
+        <video id="cxv" controls preload="metadata"></video>
+        <div id="cxbar"><i class="o"></i><i class="c"></i><i class="h" data-h="s" title="Início"></i><i class="h" data-h="e" title="Fim"></i><i class="p"></i></div>
+        <div id="cxrd"></div>
+        <div class="nud" data-e="s"><b>Início</b></div>
+        <div class="nud" data-e="e"><b>Fim</b></div>
+        <div class="row"><button type="button" id="cxss">⇤ início no ponto atual</button><button type="button" id="cxse">fim no ponto atual ⇥</button><button type="button" id="cxpv">▶ Prévia do novo corte</button><button type="button" id="cxrs">Voltar ao corte original</button></div>
+        <div class="warn" id="cxw"></div><div class="small" id="cxp"></div>
+      </div>
+      <div class="epane" id="eopt" hidden>
+        <label class="fld">Modelo<select id="otpl"></select></label>
+        <label class="row" id="otrw"><input type="checkbox" id="otr"> Cortar pausas</label>
+        <label class="row" id="oinw"><input type="checkbox" id="oin"> Vinheta no fim</label>
+        <label class="fld">Legenda: posição <b id="oyv"></b><input type="range" id="oy" min="5" max="95" step="1"></label>
+        <label class="fld">Legenda: tamanho <b id="ozv"></b><input type="range" id="oz" min="32" max="160" step="2"></label>
+        <div class="small">Modelo e cortar pausas cortam a gravação de novo (a legenda é refeita pela transcrição). Vinheta, posição e tamanho da legenda só refazem o vídeo no mesmo corte. A linha rosa no vídeo mostra a altura da legenda.</div>
+      </div>
+      <div class="epane" id="epub" hidden>
+        <label class="fld">Título <span id="ptc"></span><input type="text" id="pt" maxlength="100"></label>
+        <label class="fld">Descrição<textarea id="pd" maxlength="2000"></textarea></label>
+        <label class="fld">Hashtags (até 15)<input type="text" id="ph" placeholder="#a #b #c"></label>
+        <div class="row"><button type="button" id="pcp">Copiar título + descrição + hashtags</button></div>
+        <div class="fld">Capa<div class="row"><button type="button" id="pth">Usar o quadro atual do vídeo como capa</button><span id="ptv" class="small"></span></div></div>
+        <div class="small">Título, descrição e capa são salvos na hora, sem refazer o vídeo.</div>
+      </div>
+    </div>
+  </div>
+  <div id="etb">
+    <button type="button" id="tplay" title="Espaço">▶</button>
+    <button type="button" id="tzo" title="Menos zoom na timeline">−</button><button type="button" id="tzi" title="Mais zoom na timeline (Ctrl+roda)">+</button>
+    <button type="button" id="tsn" class="on" title="Encaixar nas bordas e no cursor">Encaixe</button>
+    <button type="button" id="addz">+ Zoom aqui</button><button type="button" id="adds">+ Som aqui</button><button type="button" id="addc">+ Legenda aqui</button>
+    <button type="button" id="tdel" class="del">Excluir</button><button type="button" id="tun" title="Ctrl+Z">Desfazer</button>
+    <span class="tm" id="ttm"></span>
+  </div>
+  <div id="tl"><div id="tlab"><div></div><div>Gancho</div><div>Legenda</div><div>Zoom</div><div>Som</div></div>
+    <div id="tls"><div id="tlin"><div id="rul"></div><div id="tkw"></div><div id="phd"></div></div></div></div>
+  <div id="efoot"><span class="merr" id="cerr"></span><button type="button" id="cno">Cancelar</button><button type="button" class="pri" id="cok">Salvar e refazer o clipe</button></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -256,7 +363,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const FILTERS = {done:["Prontos",["done"]], queue:["Na fila",["pending","running","retry","deferred"]],
   rejected:["Descartados",["rejected"]], failed:["Falhas",["failed"]], all:["Todos",null]};
-let S = null, filter = "done", onlySess = false, busy = false;
+let S = null, filter = "done", onlySess = false, busy = false, impF = false, impId = null;
 
 function toast(msg, bad) {
   const t = $("toast"); t.textContent = msg; t.className = "on" + (bad ? " bad" : "");
@@ -326,14 +433,14 @@ function clipCard(c) {
   const m = c.meta || {}, rv = m.review || {};
   const w = [rv.captions_uncertain && "legenda incerta", rv.spoiler_risk && "risco de spoiler", rv.no_speech && "sem fala"].filter(Boolean);
   const sc = c.score != null ? `<span class="badge ${lvScore(c.score)}">${c.score}</span>` : "";
-  const head = `<div>${sc} <span class="small">#${c.id} · ${esc(c.live_time)} · ${c.duration_s}s${c.category ? " · " + esc(c.category) : ""}</span></div>`;
+  const head = `<div>${sc} <span class="small">#${c.id} · ${c.import_id ? "🎬 " + esc(c.import_name) + (c.pos_s != null ? " @ " + dur(c.pos_s) : "") : esc(c.live_time)} · ${c.duration_s}s${c.category ? " · " + esc(c.category) : ""}</span></div>`;
   if (c.status === "done" && c.mp4) {
     return `<div class="card"><video preload="none" controls ${c.jpg ? `poster="${c.jpg}"` : ""} src="${c.mp4}"></video>
       <div class="b">${head}<div class="t">${esc(m.title || c.title)}</div>
       <div class="small">${esc(m.renderer || "")}${m.detected_by ? " · " + esc(m.detected_by) : ""}${m.duration_s ? " · " + dur(m.duration_s) : ""}</div>
       ${w.length ? `<div class="warn">Atenção: ${w.join(", ")}</div>` : ""}
       <div class="acts"><button type="button" data-copy="${c.id}">Copiar título+descrição</button>
-      <button type="button" data-cap="${c.id}">Editar legenda</button>
+      <button type="button" data-cap="${c.id}">Editar clipe</button>
       <button type="button" data-open="review">Abrir pasta</button>${delBtn(c, "candidates")}</div></div></div>`;
   }
   return `<div class="card"><div class="b">${head}<div><span class="chip ${c.status}">${c.status}${c.priority ? " ★" : ""}</span></div>
@@ -388,14 +495,18 @@ function render() {
   $("tiles").innerHTML = tiles(s.metrics);
   $("queues").innerHTML = ["segments:Segmentos", "candidates:Clipes", "episodes:Episódios"].map(x => { const [k, n] = x.split(":"); return `<div class="q"><b>${n}</b>${counts(s.queue[k])}</div>`; }).join("")
     + `<div class="q"><b>Chamadas Claude</b>sessão ${s.claude.session} · última hora ${s.claude.hour}</div>`;
-  const pool = onlySess ? s.candidates.filter(c => c.session === s.session) : s.candidates, f = FILTERS[filter][1];
+  const nImp = s.candidates.filter(c => c.import_id != null).length;
+  let pool = onlySess ? s.candidates.filter(c => c.session === s.session) : s.candidates;
+  if (impF) pool = pool.filter(c => c.import_id != null && (impId == null || c.import_id == impId));
+  const f = FILTERS[filter][1];
   const list = pool.filter(c => !f || f.includes(c.status));
   syncList($("clips"), list, clipCard);
   $("clipsempty").style.display = list.length ? "none" : "block";
-  const bq = onlySess ? pool.reduce((o, c) => (o[c.status] = (o[c.status] || 0) + 1, o), {}) : s.queue.candidates || {};
+  const bq = onlySess || impF ? pool.reduce((o, c) => (o[c.status] = (o[c.status] || 0) + 1, o), {}) : s.queue.candidates || {};
   $("filters").innerHTML = Object.entries(FILTERS).map(([k, [n, st]]) =>
     `<button type="button" data-filter="${k}" class="${k === filter ? "on" : ""}">${n} ${st ? st.reduce((t, x) => t + (bq[x] || 0), 0) : Object.values(bq).reduce((t, x) => t + x, 0)}</button>`).join(" ")
-    + ` <button type="button" data-sess="1" class="${onlySess ? "on" : ""}">Esta sessão</button>`;
+    + ` <button type="button" data-sess="1" class="${onlySess ? "on" : ""}">Esta sessão</button>`
+    + ` <button type="button" data-imp="1" class="${impF ? "on" : ""}">Importados ${impF ? pool.length : nImp}</button>`;
   syncList($("eps"), s.episodes, epCard);
   $("epsempty").style.display = s.episodes.length ? "none" : "block";
   const lg = $("log"), txt = s.log.join("\n");
@@ -433,6 +544,9 @@ document.addEventListener("click", e => {
   else if (b.dataset.open) post("/api/open/" + b.dataset.open, b);
   else if (b.dataset.filter) { filter = b.dataset.filter; render(); }
   else if (b.dataset.sess) { onlySess = !onlySess; render(); }
+  else if (b.dataset.imp) { impF = !impF; impId = null; render(); }
+  else if (b.dataset.impview) { impF = true; impId = +b.dataset.impview; onlySess = false; filter = "all"; location.hash = "#ao-vivo"; if (S) render(); }
+  else if (b.dataset.impcancel) cancelImp(+b.dataset.impcancel);
   else if (b.dataset.del) { const [k, id] = b.dataset.del.split(":"); delItem(k, id); }
   else if (b.dataset.cap) openCap(b.dataset.cap);
   else if (b.dataset.copy) {
@@ -443,65 +557,397 @@ document.addEventListener("click", e => {
   }
 });
 
-// ================= editor de legenda =================
-const CE = {id: null, g: [], dur: 0, cur: -1};
-const r2 = n => Math.round(n * 100) / 100;
-function ceRow(g, i) {
-  return `<div class="cl" data-i="${i}"><input type="text" data-f="text" value="${esc(g.text)}" maxlength="160" aria-label="Texto da linha ${i + 1}">
-    <input type="number" data-f="s" step="0.1" min="0" value="${g.s}" aria-label="Início (s)"><input type="number" data-f="e" step="0.1" min="0" value="${g.e}" aria-label="Fim (s)">
-    <button type="button" data-ca="play" title="Tocar daqui">▶</button><button type="button" data-ca="ns" title="Início = tempo atual do vídeo">⇤ agora</button>
-    <button type="button" data-ca="ne" title="Fim = tempo atual do vídeo">agora ⇥</button><button type="button" data-ca="rm" title="Remover">✕</button></div>`;
+// ================= editor de clipe (timeline) =================
+const ED = {id: null, dur: 0, hook: "", caps: [], zooms: [], sfx: [], sounds: [], anchors: {}, sel: null, undo: [], lk: null, orig: "", pps: 100, fit: 100, snap: true, drag: null, audio: null};
+const HOOK_MS = 1800;
+const edJson = () => JSON.stringify({hook: ED.hook, caps: ED.caps, zooms: ED.zooms, sfx: ED.sfx});
+const X = {orig: "", loaded: false};
+const xJson = () => JSON.stringify({c: X.cut && [X.cut.start, X.cut.end], o: X.opt, m: X.meta, t: X.thumb});
+const edDirty = () => edJson() !== ED.orig || xJson() !== X.orig;
+const cutMoved = () => !!X.cut && (X.cut.start !== X.ocut[0] || X.cut.end !== X.ocut[1]);
+const needsRender = () => edJson() !== ED.orig || cutMoved() || JSON.stringify(X.opt) !== X.oopt;
+const PX = () => ED.pps / 1000;                      // px per ms
+const sec = ms => +(ms / 1000).toFixed(2);
+const ms2 = s => Math.round(s * 1000);
+const vid = () => $("cvid");
+const nowMs = () => Math.round(vid().currentTime * 1000);
+const listOf = k => ({cap: ED.caps, zoom: ED.zooms, sfx: ED.sfx}[k]);
+const itemOf = (k, i) => (listOf(k) || [])[i];
+const spanOf = (k, o) => k === "cap" ? [o.start_ms, o.end_ms] : k === "zoom" ? [o.start_ms, o.start_ms + o.duration_ms] : [o.start_ms, o.start_ms];
+function setSpan(k, o, s, e) { o.start_ms = s; if (k === "cap") o.end_ms = e; else if (k === "zoom") o.duration_ms = e - s; }
+const selItem = () => ED.sel && ED.sel.k !== "hook" ? itemOf(ED.sel.k, ED.sel.i) : null;
+
+function edSnap(key) {  // push an undo snapshot; same key in a row = one step (typing, slider)
+  if (key && ED.lk === key) return;
+  ED.lk = key || null; ED.undo.push(edJson()); if (ED.undo.length > 100) ED.undo.shift();
 }
-function ceList() { $("clines").innerHTML = CE.g.map(ceRow).join(""); CE.cur = -1; ceCheck(); }
-function ceCheck() {
-  let ok = true;
-  document.querySelectorAll("#clines .cl").forEach((r, i) => {
-    const g = CE.g[i], bad = !g.text.trim() || !Number.isFinite(g.s) || !Number.isFinite(g.e) || g.s < 0 || g.e > CE.dur + 0.001 || g.e - g.s < 0.1;
-    r.classList.toggle("bad", bad); if (bad) ok = false;
-  });
-  $("cok").disabled = !ok;
-  $("cerr").textContent = ok ? "" : "Cada linha precisa de texto e de início menor que o fim (mín. 0,1 s), dentro de 0 a " + r2(CE.dur) + " s.";
+function edUndo() {
+  if (!ED.undo.length) return;
+  const s = JSON.parse(ED.undo.pop()); ED.hook = s.hook; ED.caps = s.caps; ED.zooms = s.zooms; ED.sfx = s.sfx;
+  ED.sel = null; ED.lk = null; edRefresh();
 }
+function edRefresh() { drawTL(); renderProps(); edMark(); }
+function edMark() { $("edirty").textContent = edDirty() ? "● alterações não salvas" : ""; $("tun").disabled = !ED.undo.length; $("cok").textContent = needsRender() ? "Salvar e refazer o clipe" : "Salvar"; }
+
+function overlaps() {
+  const bad = new Set(), z = ED.zooms.map((o, i) => [o.start_ms, o.start_ms + o.duration_ms, i]).sort((a, b) => a[0] - b[0]);
+  for (let n = 1; n < z.length; n++) if (z[n][0] < z[n - 1][1]) { bad.add(z[n][2]); bad.add(z[n - 1][2]); }
+  return bad;
+}
+function markBad() { const b = overlaps(); document.querySelectorAll("#tkw .bk.zoom").forEach(e => e.classList.toggle("bad", b.has(+e.dataset.i))); }
+
+function drawTL() {
+  const px = PX(), bad = overlaps(), sel = ED.sel;
+  $("tlin").style.width = (ED.dur * px + 12) + "px";
+  const step = [0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30, 60].find(s => s * ED.pps >= 56) || 60; let r = "";
+  for (let t = 0; t <= ED.dur / 1000 + 1e-6; t += step) r += `<i style="left:${t * ED.pps}px"></i><b style="left:${t * ED.pps}px">${+t.toFixed(2)}s</b>`;
+  $("rul").innerHTML = r;
+  const cls = (k, i) => "bk " + k + (sel && sel.k === k && sel.i === i ? " sel" : "") + (k === "zoom" && bad.has(i) ? " bad" : "");
+  const he = Math.min(HOOK_MS, ED.dur), rh = '<i class="rh l"></i><i class="rh r"></i>';
+  const hook = `<div class="trk"><div class="${cls("hook", 0)}${ED.hook.trim() ? "" : " empty"}" data-k="hook" data-i="0" style="left:0;width:${he * px}px">${esc(ED.hook.trim() || "(sem gancho)")}</div></div>`;
+  const caps = `<div class="trk">${ED.caps.map((o, i) => `<div class="${cls("cap", i)}" data-k="cap" data-i="${i}" style="left:${o.start_ms * px}px;width:${Math.max(6, (o.end_ms - o.start_ms) * px)}px">${rh}${esc(o.text)}</div>`).join("")}</div>`;
+  const zooms = `<div class="trk">${ED.zooms.map((o, i) => `<div class="${cls("zoom", i)}" data-k="zoom" data-i="${i}" style="left:${o.start_ms * px}px;width:${Math.max(6, o.duration_ms * px)}px">${rh}${o.scale.toFixed(2)}×</div>`).join("")}</div>`;
+  const sfx = `<div class="trk">${ED.sfx.map((o, i) => `<div class="${cls("sfx", i)}" data-k="sfx" data-i="${i}" style="left:${o.start_ms * px - 7}px"><b>◆</b>${esc(o.sound)}</div>`).join("")}</div>`;
+  $("tkw").innerHTML = hook + caps + zooms + sfx;
+  setPH();
+}
+function setPH() {
+  const t = nowMs(); $("phd").style.transform = `translateX(${t * PX()}px)`;
+  $("ttm").textContent = (t / 1000).toFixed(1) + " / " + (ED.dur / 1000).toFixed(1) + " s";
+}
+function selClasses() {
+  document.querySelectorAll("#tkw .bk").forEach(e => e.classList.toggle("sel", !!ED.sel && e.dataset.k === ED.sel.k && +e.dataset.i === ED.sel.i));
+  $("xh").style.display = ED.sel && ED.sel.k === "zoom" ? "block" : "none"; placeXh();
+}
+function placeXh() { const z = ED.sel && ED.sel.k === "zoom" && itemOf("zoom", ED.sel.i); if (z) { $("xh").style.left = z.anchor[0] * 100 + "%"; $("xh").style.top = z.anchor[1] * 100 + "%"; } }
+
+// ---- properties panel
+const near = (a, b) => a && b && Math.abs(a[0] - b[0]) < .002 && Math.abs(a[1] - b[1]) < .002;
+function renderProps() {
+  const sel = ED.sel, o = selItem(), P = $("eprop"), fld = (l, h) => `<label class="fld">${l}${h}</label>`;
+  if (!sel) { P.innerHTML = '<div class="mut">Clique num item da timeline para editar. Arraste para mover, puxe as bordas para redimensionar. Espaço toca/pausa.</div>'; selClasses(); return; }
+  if (sel.k === "hook") P.innerHTML = `<b>Gancho</b>` + fld("Texto (vazio = sem gancho); aparece de 0 a 1,8 s", `<input type="text" data-p="hook" maxlength="28" value="${esc(ED.hook)}">`);
+  else if (sel.k === "cap") P.innerHTML = `<b>Legenda</b>` + fld("Texto", `<input type="text" data-p="text" maxlength="160" value="${esc(o.text)}">`)
+    + `<div class="row">${fld("Início (s)", `<input type="number" data-p="cs" step="0.1" min="0" value="${sec(o.start_ms)}">`)}${fld("Fim (s)", `<input type="number" data-p="ce" step="0.1" min="0" value="${sec(o.end_ms)}">`)}
+    <button type="button" data-pa="ns">⇤ agora</button><button type="button" data-pa="ne">agora ⇥</button><button type="button" data-pa="see">▶ ver</button></div>`
+    + `<div class="small">Mesmo número de palavras e tempos = sincronia original palavra por palavra; se mudar, o destaque é redistribuído na linha.</div>`;
+  else if (sel.k === "zoom") P.innerHTML = `<b>Zoom</b><div class="row">${fld(`Força: <b id="zsv">${o.scale.toFixed(2)}×</b>`, `<input type="range" data-p="zs" min="1.02" max="1.6" step="0.01" value="${o.scale}">`)}
+    ${fld("Duração (ms)", `<input type="number" data-p="zd" min="200" max="4000" step="50" value="${o.duration_ms}">`)}${fld("Início (s)", `<input type="number" data-p="zt" step="0.1" min="0" value="${sec(o.start_ms)}">`)}</div>
+    <div class="row"><span class="small">Foco:</span>${["rosto", "jogo", "centro"].map(n => `<button type="button" data-pa="a:${n}" class="${near(ED.anchors[n], o.anchor) ? "on" : ""}" ${ED.anchors[n] ? "" : "disabled"}>${n[0].toUpperCase() + n.slice(1)}</button>`).join("")}
+    <button type="button" data-pa="see">▶ ver</button></div><div class="small" id="zfc"></div>`;
+  else if (sel.k === "sfx") P.innerHTML = `<b>Som</b><div class="row">${fld("Som", `<select data-p="sn">${ED.sounds.map(n => `<option${n === o.sound ? " selected" : ""}>${esc(n)}</option>`).join("")}</select>`)}
+    <button type="button" data-pa="hear">▶ ouvir</button>${fld("Início (s)", `<input type="number" data-p="st" step="0.1" min="0" value="${sec(o.start_ms)}">`)}</div>
+    ${fld(`Volume: <b id="sgv">${o.gain_db} dB</b>`, `<input type="range" data-p="sg" min="-40" max="0" step="1" value="${o.gain_db}">`)}`;
+  selClasses(); flipAnchor(); showTab("item");
+}
+function onProp(e) {
+  const p = e.target.dataset.p; if (!p) return;
+  const o = selItem(), v = e.target.value, f = parseFloat(v); edSnap("p:" + p);
+  if (p === "hook") ED.hook = v.toUpperCase();
+  else if (p === "text") o.text = v;
+  else if (p === "sn") o.sound = v;
+  else if (Number.isFinite(f)) {
+    if (p === "cs") o.start_ms = clamp(ms2(f), 0, o.end_ms - 100);
+    else if (p === "ce") o.end_ms = clamp(ms2(f), o.start_ms + 100, ED.dur);
+    else if (p === "zs") { o.scale = clamp(f, 1.02, 1.6); $("zsv").textContent = o.scale.toFixed(2) + "×"; }
+    else if (p === "zd") o.duration_ms = clamp(Math.round(f), 200, Math.min(4000, ED.dur - o.start_ms));
+    else if (p === "zt") o.start_ms = clamp(ms2(f), 0, ED.dur - o.duration_ms);
+    else if (p === "sg") { o.gain_db = clamp(f, -40, 0); $("sgv").textContent = o.gain_db + " dB"; }
+    else if (p === "st") o.start_ms = clamp(ms2(f), 0, ED.dur);
+  }
+  drawTL(); edMark();
+}
+function flipAnchor() {
+  placeXh(); const z = selItem(), t = $("zfc"); if (!t || !z || !z.anchor) return;
+  t.textContent = `Clique no vídeo para escolher o foco (${z.anchor[0].toFixed(2)}, ${z.anchor[1].toFixed(2)}).`;
+  document.querySelectorAll("#eprop [data-pa^='a:']").forEach(b => b.classList.toggle("on", near(ED.anchors[b.dataset.pa.slice(2)], z.anchor)));
+}
+function playSound(o) {
+  if (ED.audio) ED.audio.pause();
+  const a = ED.audio = new Audio(`/api/sfx/${encodeURIComponent(o.sound)}.wav`); a.volume = clamp(Math.pow(10, o.gain_db / 20), 0, 1); a.play().catch(() => {});
+}
+$("eprop").addEventListener("input", onProp);
+$("eprop").addEventListener("change", e => { ED.lk = null; if (!["hook", "text"].includes(e.target.dataset.p)) renderProps(); });
+$("eprop").addEventListener("focusout", () => { ED.lk = null; });
+$("eprop").addEventListener("click", e => {
+  const b = e.target.closest("button[data-pa]"); if (!b) return;
+  const a = b.dataset.pa, o = selItem(), v = vid();
+  if (a === "hear") playSound(o);
+  else if (a === "see") { v.currentTime = Math.max(0, o.start_ms / 1000 - (ED.sel.k === "zoom" ? 0.5 : 0)); v.play(); }
+  else if (a === "ns" || a === "ne") {
+    edSnap(); const t = nowMs();
+    if (a === "ns") o.start_ms = clamp(t, 0, o.end_ms - 100); else o.end_ms = clamp(t, o.start_ms + 100, ED.dur);
+    edRefresh();
+  } else if (a.startsWith("a:") && ED.anchors[a.slice(2)]) { edSnap(); o.anchor = [...ED.anchors[a.slice(2)]]; flipAnchor(); edMark(); }
+});
+
+// ---- video
+const edSeek = ms => { vid().currentTime = clamp(ms, 0, ED.dur) / 1000; setPH(); };
+function edToggle() { const v = vid(); if (v.paused) v.play(); else v.pause(); }
+function tick() {
+  setPH(); const v = vid();
+  if (!v.paused && $("cdlg").open) {
+    const x = nowMs() * PX(), s = $("tls");
+    if (x > s.scrollLeft + s.clientWidth - 24 || x < s.scrollLeft) s.scrollLeft = x - 40;
+    requestAnimationFrame(tick);
+  }
+}
+$("cvid").addEventListener("play", () => { $("tplay").textContent = "⏸"; requestAnimationFrame(tick); });
+$("cvid").addEventListener("pause", () => { $("tplay").textContent = "▶"; setPH(); });
+$("cvid").addEventListener("seeked", setPH);
+$("tplay").onclick = edToggle;
+$("estage").addEventListener("pointerdown", e => {
+  const z = ED.sel && ED.sel.k === "zoom" && itemOf("zoom", ED.sel.i);
+  if (!z) return edToggle();
+  const r = $("estage").getBoundingClientRect(); edSnap();
+  z.anchor = [+clamp((e.clientX - r.left) / r.width, 0, 1).toFixed(3), +clamp((e.clientY - r.top) / r.height, 0, 1).toFixed(3)]; flipAnchor(); edMark();
+});
+
+// ---- timeline interaction
+const xMs = cx => (cx - $("tlin").getBoundingClientRect().left) / PX();
+function snapPoints(skipK, skipI) {
+  const pts = [nowMs(), 0, Math.min(HOOK_MS, ED.dur), ED.dur];
+  for (const k of ["cap", "zoom", "sfx"]) listOf(k).forEach((o, i) => { if (!(k === skipK && i === skipI)) pts.push(...spanOf(k, o)); });
+  return pts;
+}
+function snapTo(vals, pts) {  // vals: edges of the dragged item; returns the shift that aligns the closest one (within ~6 px)
+  if (!ED.snap) return 0;
+  let best = 6 / PX(), d = 0;
+  for (const v of vals) for (const p of pts) if (Math.abs(p - v) < Math.abs(best)) { best = p - v; d = best; }
+  return d;
+}
+$("tlin").addEventListener("pointerdown", e => {
+  if (e.button) return;
+  const bk = e.target.closest(".bk"), tl = $("tlin");
+  tl.setPointerCapture(e.pointerId);
+  if (!bk) { ED.drag = {mode: "seek"}; edSeek(xMs(e.clientX)); return; }
+  const k = bk.dataset.k, i = +bk.dataset.i; ED.sel = {k, i}; selClasses(); renderProps();
+  if (k === "hook") { ED.drag = null; return; }
+  const o = itemOf(k, i), [s, en] = spanOf(k, o), mode = e.target.classList.contains("rh") ? (e.target.classList.contains("l") ? "l" : "r") : "move";
+  edSnap(); ED.drag = {mode, k, i, o, el: bk, x0: e.clientX, s, e: en, moved: false, pts: snapPoints(k, i)};
+  e.preventDefault();
+});
+$("tlin").addEventListener("pointermove", e => {
+  const D = ED.drag; if (!D) return;
+  if (D.mode === "seek") return edSeek(xMs(e.clientX));
+  if (Math.abs(e.clientX - D.x0) > 2) D.moved = true;
+  if (!D.moved) return;
+  const dx = (e.clientX - D.x0) / PX(), minL = D.k === "zoom" ? 200 : 100, dur = ED.dur; let s = D.s, en = D.e;
+  if (D.mode === "move") {
+    const len = D.e - D.s; s = clamp(D.s + dx, 0, dur - len); s = clamp(s + snapTo(D.k === "sfx" ? [s] : [s, s + len], D.pts), 0, dur - len); en = s + len;
+  } else if (D.mode === "l") {
+    s = clamp(D.s + dx, D.k === "zoom" ? Math.max(0, D.e - 4000) : 0, D.e - minL); s = clamp(s + snapTo([s], D.pts), 0, D.e - minL);
+  } else {
+    en = clamp(D.e + dx, D.s + minL, D.k === "zoom" ? Math.min(dur, D.s + 4000) : dur); en = clamp(en + snapTo([en], D.pts), D.s + minL, dur);
+  }
+  s = Math.round(s); en = Math.round(en); setSpan(D.k, D.o, s, en);
+  const px = PX(); D.el.style.left = (D.k === "sfx" ? s * px - 7 : s * px) + "px";
+  if (D.k !== "sfx") D.el.style.width = Math.max(6, (en - s) * px) + "px";
+  if (D.k === "zoom") markBad();
+});
+function endDrag() {
+  const D = ED.drag; ED.drag = null;
+  if (!D || D.mode === "seek") return;
+  if (!D.moved) ED.undo.pop();  // plain click: nothing to undo
+  edRefresh();
+}
+$("tlin").addEventListener("pointerup", endDrag);
+$("tlin").addEventListener("pointercancel", endDrag);
+$("tls").addEventListener("wheel", e => { if (!e.ctrlKey) return; e.preventDefault(); edZoomTL(e.deltaY < 0 ? 1.25 : 0.8, e.clientX); }, {passive: false});
+function edZoomTL(f, cx) {
+  const s = $("tls"), r = s.getBoundingClientRect(), at = cx == null ? r.left + r.width / 2 : cx, t = (s.scrollLeft + at - r.left) / ED.pps;
+  ED.pps = clamp(ED.pps * f, ED.fit, 600); drawTL(); s.scrollLeft = t * ED.pps - (at - r.left);
+}
+$("tzi").onclick = () => edZoomTL(1.25); $("tzo").onclick = () => edZoomTL(0.8);
+$("tsn").onclick = () => { ED.snap = !ED.snap; $("tsn").classList.toggle("on", ED.snap); };
+
+// ---- toolbar
+function edSelect(k, i) { ED.sel = {k, i}; edRefresh(); }
+function room(arr, what) { if (arr.length >= 12) { toast("Máximo de 12 " + what, true); return false; } return true; }
+$("addz").onclick = () => {
+  if (!room(ED.zooms, "zooms")) return;
+  edSnap(); const s = clamp(nowMs(), 0, ED.dur - 200), a = ED.anchors.rosto || ED.anchors.jogo || [0.5, 0.5];
+  ED.zooms.push({start_ms: s, duration_ms: Math.min(700, ED.dur - s), scale: 1.18, anchor: [...a]}); edSelect("zoom", ED.zooms.length - 1);
+};
+$("adds").onclick = () => {
+  if (!room(ED.sfx, "sons")) return;
+  edSnap(); ED.sfx.push({start_ms: clamp(nowMs(), 0, ED.dur), sound: ED.sounds.includes("impact_soft") ? "impact_soft" : ED.sounds[0], gain_db: -12}); edSelect("sfx", ED.sfx.length - 1);
+};
+$("addc").onclick = () => {
+  edSnap(); const s = clamp(nowMs(), 0, Math.max(0, ED.dur - 100));
+  ED.caps.push({text: "NOVA LEGENDA", start_ms: s, end_ms: Math.min(s + 1500, ED.dur)}); edSelect("cap", ED.caps.length - 1);
+  const t = document.querySelector("#eprop [data-p=text]"); if (t) { t.focus(); t.select(); }
+};
+function edDelete() {
+  const s = ED.sel; if (!s) return;
+  edSnap();
+  if (s.k === "hook") ED.hook = ""; else { listOf(s.k).splice(s.i, 1); ED.sel = null; }
+  edRefresh();
+}
+function edNudge(d) {
+  const o = selItem(); if (!o) return;
+  const k = ED.sel.k, [s, en] = spanOf(k, o), len = en - s, ns = clamp(s + d, 0, ED.dur - len);
+  edSnap(); setSpan(k, o, ns, ns + len); edRefresh();
+}
+$("tdel").onclick = edDelete; $("tun").onclick = edUndo;
+
+// ---- corte / opções / publicação (extra state X; the timeline's undo stack does not cover it)
+const MINC = 5000, MAXC = 180000;
+const fs1 = ms => (Math.abs(ms) / 1000).toFixed(1).replace(".", ",");
+function showTab(t) {
+  document.querySelectorAll("#etabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  $("eprop").hidden = t !== "item"; ["cut", "opt", "pub"].forEach(k => $("e" + k).hidden = t !== k);
+  $("capline").style.display = t === "opt" ? "block" : "none";
+  if (t === "cut" && X.cut) cxLoad();
+}
+$("etabs").addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b) showTab(b.dataset.tab); });
+function xBase() { X.orig = xJson(); X.oopt = JSON.stringify(X.opt); X.ocut = X.cut ? [X.cut.start, X.cut.end] : [0, 0]; }
+function xInit(d) {
+  const c = d.cut, o = d.options, m = d.meta, cp = o.caption || {};
+  X.cut = {start: c.start_ms, end: c.end_ms, min: c.min_ms, max: c.max_ms, pauses: c.pauses_cut_ms || 0};
+  X.opt = {tpl: o.template, trim: o.trim_pauses, intro: o.intro, y: cp.y ?? 0.5, size: cp.size ?? 80};
+  X.meta = {title: m.title || "", desc: m.description || "", tags: (m.hashtags || []).map(t => "#" + String(t).replace(/^#+/, "")).join(" ")};
+  X.thumb = d.thumbnail_ms ?? null; X.loaded = false; X.pv = null;
+  xBase();
+  $("cxld").textContent = "Carregando a gravação ao redor…"; $("cxld").style.display = "";
+  const cv = $("cxv"); cv.removeAttribute("src"); cv.style.display = "none";
+  $("otpl").innerHTML = Object.entries(o.templates).map(([k, l]) => `<option value="${esc(k)}">${esc(l)}</option>`).join("");
+  $("otrw").style.display = o.trim_pauses == null ? "none" : ""; $("oinw").style.display = o.intro == null ? "none" : "";
+  xFill(); cxDraw();
+}
+function xFill() {
+  const p = X.opt; $("otpl").value = p.tpl; $("otr").checked = !!p.trim; $("oin").checked = !!p.intro;
+  $("oy").value = Math.round(p.y * 100); $("oz").value = p.size; optLbl();
+  $("pt").value = X.meta.title; $("pd").value = X.meta.desc; $("ph").value = X.meta.tags; ptLbl();
+}
+function optLbl() { $("oyv").textContent = Math.round(X.opt.y * 100) + " %"; $("ozv").textContent = X.opt.size + " px"; $("capline").style.top = X.opt.y * 100 + "%"; }
+function ptLbl() { $("ptc").textContent = $("pt").value.length + "/100"; $("ptv").textContent = X.thumb == null ? "capa: padrão" : "capa: " + (X.thumb / 1000).toFixed(1).replace(".", ",") + " s do clipe"; }
+$("eopt").addEventListener("input", e => {
+  const p = X.opt, t = e.target.id;
+  if (t === "otpl") p.tpl = e.target.value; else if (t === "otr") p.trim = e.target.checked; else if (t === "oin") p.intro = e.target.checked;
+  else if (t === "oy") p.y = e.target.value / 100; else if (t === "oz") p.size = +e.target.value;
+  optLbl(); edMark();
+});
+const tagList = s => [...new Set(s.split(/[\s,]+/).map(t => t.replace(/^#+/, "")).filter(Boolean).map(t => "#" + t))];
+$("epub").addEventListener("input", () => {
+  X.meta = {title: $("pt").value, desc: $("pd").value, tags: tagList($("ph").value).join(" ")}; ptLbl(); edMark();
+});
+$("pth").onclick = () => { X.thumb = nowMs(); ptLbl(); edMark(); };
+$("pcp").onclick = async () => {
+  const txt = [$("pt").value.trim(), $("pd").value.trim(), tagList($("ph").value).join(" ")].filter(Boolean).join("\n\n");
+  try { await navigator.clipboard.writeText(txt); toast("Copiado."); } catch (e) { toast("Não consegui copiar.", true); }
+};
+function xBody() {
+  const b = {}, p = X.opt, q = JSON.parse(X.oopt), o = {};
+  if (cutMoved()) b.cut = {start_ms: X.cut.start, end_ms: X.cut.end};
+  if (p.tpl !== q.tpl) o.template = p.tpl;
+  if (p.trim != null && p.trim !== q.trim) o.trim_pauses = p.trim;
+  if (p.intro != null && p.intro !== q.intro) o.intro = p.intro;
+  if (p.y !== q.y || p.size !== q.size) o.caption = {y: p.y, size: p.size};
+  if (Object.keys(o).length) b.options = o;
+  const base = JSON.parse(X.orig);
+  if (JSON.stringify(X.meta) !== JSON.stringify(base.m)) b.meta = {title: X.meta.title.trim(), description: X.meta.desc, hashtags: tagList(X.meta.tags)};
+  if (X.thumb !== base.t) b.thumbnail_ms = X.thumb;
+  return b;
+}
+// context player + cut bar
+const cxPct = ms => ((ms - X.cut.min) / (X.cut.max - X.cut.min) * 100) + "%";
+function cxDraw() {
+  const c = X.cut, bar = $("cxbar"), el = s => bar.querySelector(s), span = c.max - c.min;
+  const o = el(".o"), k = el(".c"); o.style.left = cxPct(X.ocut[0]); o.style.width = (X.ocut[1] - X.ocut[0]) / span * 100 + "%";
+  k.style.left = cxPct(c.start); k.style.width = (c.end - c.start) / span * 100 + "%";
+  el("[data-h=s]").style.left = cxPct(c.start); el("[data-h=e]").style.left = cxPct(c.end);
+  const ds = X.ocut[0] - c.start, de = c.end - X.ocut[1], dur = fs1(c.end - c.start);
+  $("cxrd").textContent = cutMoved()
+    ? `${ds === 0 ? "Começa igual" : `Começa ${fs1(ds)} s mais ${ds > 0 ? "cedo" : "tarde"}`} · ${de === 0 ? "termina igual" : `termina ${fs1(de)} s mais ${de > 0 ? "tarde" : "cedo"}`} · duração ${dur} s`
+    : `igual ao corte original · duração ${dur} s`;
+  $("cxw").textContent = cutMoved() ? "A legenda será refeita pela transcrição (edições de texto da legenda serão perdidas); zooms e sons continuam no mesmo momento da gravação." : "";
+  $("cxp").textContent = c.pauses > 0 ? `${fs1(c.pauses)} s de pausas cortadas dentro do clipe` : "";
+  cxHead(); edMark();
+}
+function cxSet(s, e) {  // clamp to the recording and to 5 s .. 3 min; the edge being moved wins
+  const c = X.cut, r = v => Math.round(v / 100) * 100;
+  if (s != null) c.start = clamp(r(s), Math.max(c.min, c.end - MAXC), c.end - MINC);
+  if (e != null) c.end = clamp(r(e), c.start + MINC, Math.min(c.max, c.start + MAXC));
+  cxDraw();
+}
+const cxNow = () => Math.round($("cxv").currentTime * 1000) + X.cut.min;
+function cxHead() { if (X.cut) $("cxbar").querySelector(".p").style.left = cxPct(clamp(cxNow(), X.cut.min, X.cut.max)); }
+function cxLoad() {
+  if (X.loaded) return; X.loaded = true;
+  const cv = $("cxv"), url = `/api/candidates/${ED.id}/context.mp4`;
+  cv.onloadeddata = () => { $("cxld").style.display = "none"; cv.style.display = ""; cv.currentTime = (X.cut.start - X.cut.min) / 1000; };
+  cv.onerror = async () => {
+    let m = "Não foi possível carregar a gravação.";
+    try { const r = await fetch(url, {headers: {Range: "bytes=0-0"}}); if (!r.ok) m = (await r.json()).error || m; } catch (e) { /* keep */ }
+    $("cxld").textContent = m; X.loaded = false;
+  };
+  cv.src = url;
+}
+$("cxv").addEventListener("timeupdate", () => { cxHead(); if (X.pv != null && cxNow() >= X.pv) { $("cxv").pause(); X.pv = null; } });
+$("cxv").addEventListener("seeked", cxHead);
+$("cxv").addEventListener("pause", cxHead);
+$("cxv").addEventListener("play", function f() { cxHead(); if (!$("cxv").paused) requestAnimationFrame(f); });
+$("ecut").addEventListener("click", e => {
+  const b = e.target.closest(".nud button"); if (!b) return;
+  const d = +b.dataset.d;
+  if (b.parentNode.dataset.e === "s") cxSet(X.cut.start + d, null); else cxSet(null, X.cut.end + d);
+});
+for (const k of ["s", "e"]) $("ecut").querySelector(`.nud[data-e=${k}]`).insertAdjacentHTML("beforeend",
+  [[-5000, "−5 s"], [-1000, "−1 s"], [-100, "−0,1 s"], [100, "+0,1 s"], [1000, "+1 s"], [5000, "+5 s"]].map(([d, l]) => `<button type="button" data-d="${d}">${l}</button>`).join(""));
+$("cxss").onclick = () => cxSet(cxNow(), null);
+$("cxse").onclick = () => cxSet(null, cxNow());
+$("cxrs").onclick = () => { X.cut.start = X.ocut[0]; X.cut.end = X.ocut[1]; cxDraw(); };
+$("cxpv").onclick = () => { const v = $("cxv"); v.currentTime = (X.cut.start - X.cut.min) / 1000; X.pv = X.cut.end; v.play().catch(() => {}); };
+let cxDrag = null;
+const cxMs = e => { const r = $("cxbar").getBoundingClientRect(); return clamp((e.clientX - r.left) / r.width, 0, 1) * (X.cut.max - X.cut.min) + X.cut.min; };
+$("cxbar").addEventListener("pointerdown", e => {
+  const h = e.target.dataset.h;
+  if (h) { cxDrag = h; $("cxbar").setPointerCapture(e.pointerId); }
+  else if ($("cxv").readyState) { X.pv = null; $("cxv").currentTime = (cxMs(e) - X.cut.min) / 1000; }
+});
+$("cxbar").addEventListener("pointermove", e => { if (cxDrag === "s") cxSet(cxMs(e), null); else if (cxDrag === "e") cxSet(null, cxMs(e)); });
+$("cxbar").addEventListener("pointerup", () => { cxDrag = null; });
+
+// ---- open / close / save
+async function edClose() {
+  if (edDirty() && !await ask("Descartar as alterações do clipe?", "Descartar")) return;
+  $("cdlg").close();
+}
+document.addEventListener("keydown", e => {
+  if (!$("cdlg").open || $("dlg").open) return;
+  const t = e.target, typing = t && (t.tagName === "TEXTAREA" || t.tagName === "SELECT" || (t.tagName === "INPUT" && !["range", "checkbox", "button"].includes(t.type)));
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { if (!typing) { e.preventDefault(); edUndo(); } return; }
+  if (typing) return;
+  if (e.key === " ") { e.preventDefault(); edToggle(); }
+  else if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); edDelete(); }
+  else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && selItem()) { e.preventDefault(); edNudge((e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 1000 : 100)); }
+});
+$("cdlg").addEventListener("cancel", e => { e.preventDefault(); edClose(); });
+$("cdlg").addEventListener("close", () => { const cv = $("cxv"); cv.pause(); cv.removeAttribute("src"); cv.load(); X.loaded = false; const v = vid(); v.pause(); v.removeAttribute("src"); v.load(); if (ED.audio) ED.audio.pause(); ED.drag = null; });
+$("cno").onclick = edClose;
 async function openCap(id) {
   const c = S.candidates.find(x => x.id == id); if (!c || !c.mp4) return;
-  let d; try { d = await j(`/api/candidates/${id}/captions`); } catch (e) { return toast(e.message, true); }
-  CE.id = id; CE.dur = d.duration_ms / 1000; CE.g = d.groups.map(g => ({text: g.text, s: r2(g.start_ms / 1000), e: r2(g.end_ms / 1000)}));
-  $("chook").value = d.hook_text || ""; $("ctitle").textContent = "#" + id;
-  $("cvid").src = c.mp4; $("cvid").poster = c.jpg || "";
-  ceList(); $("cdlg").showModal();
+  let d; try { d = await j(`/api/candidates/${id}/edit`); } catch (e) { return toast(e.message, true); }
+  Object.assign(ED, {id, dur: d.duration_ms, hook: d.hook_text || "", caps: d.captions, zooms: d.zooms, sfx: d.sfx, sounds: d.sounds, anchors: d.anchors,
+    sel: null, undo: [], lk: null, snap: true, drag: null});
+  xInit(d); ED.orig = edJson(); $("tsn").classList.add("on"); $("ctitle").textContent = "#" + id; $("cerr").textContent = ""; $("cok").disabled = false;
+  vid().src = c.mp4; vid().poster = c.jpg || ""; $("tplay").textContent = "▶";
+  $("cdlg").showModal();
+  ED.fit = Math.max(20, ($("tls").clientWidth - 14) / (ED.dur / 1000)); ED.pps = ED.fit; $("tls").scrollLeft = 0;
+  showTab("item"); edRefresh();
 }
-// the dialog's close event also stops the video and frees the file (Esc, Cancelar, after saving)
-$("cdlg").addEventListener("close", () => { const v = $("cvid"); v.pause(); v.removeAttribute("src"); v.load(); });
-$("cno").onclick = () => $("cdlg").close();
-$("clines").addEventListener("input", e => {
-  const f = e.target.dataset.f, i = +e.target.closest(".cl").dataset.i; if (!f) return;
-  CE.g[i][f] = f === "text" ? e.target.value : parseFloat(e.target.value); ceCheck();
-});
-$("clines").addEventListener("click", e => {
-  const b = e.target.closest("button[data-ca]"); if (!b) return;
-  const row = b.closest(".cl"), i = +row.dataset.i, g = CE.g[i], v = $("cvid"), t = r2(v.currentTime), a = b.dataset.ca;
-  if (a === "play") { v.currentTime = g.s; v.play(); }
-  else if (a === "rm") { CE.g.splice(i, 1); ceList(); }
-  else { const f = a === "ns" ? "s" : "e"; g[f] = t; row.querySelector(`[data-f=${f}]`).value = t; ceCheck(); }
-});
-$("cadd").onclick = () => {
-  const t = r2($("cvid").currentTime), k = CE.g.findIndex(g => g.s > t), i = k < 0 ? CE.g.length : k;
-  CE.g.splice(i, 0, {text: "", s: t, e: r2(Math.min(t + 1.5, CE.dur))}); ceList();
-  document.querySelector(`#clines .cl[data-i="${i}"] input`).focus();
-};
-$("cvid").addEventListener("timeupdate", () => {
-  const t = $("cvid").currentTime, i = CE.g.findIndex(g => t >= g.s && t < g.e);
-  if (i === CE.cur) return;
-  CE.cur = i;
-  document.querySelectorAll("#clines .cl").forEach((r, k) => r.classList.toggle("cur", k === i));
-  const r = document.querySelector(`#clines .cl[data-i="${i}"]`); if (r && !r.contains(document.activeElement)) r.scrollIntoView({block: "nearest"});
-});
 $("cok").onclick = async () => {
-  const b = $("cok"); b.disabled = true;
+  const b = $("cok"); b.disabled = true; $("cerr").textContent = "";
   try {
-    const m = await api(`/api/candidates/${CE.id}/captions`, {groups: CE.g.map(g => ({text: g.text.trim(), start_ms: Math.round(g.s * 1000), end_ms: Math.round(g.e * 1000)})), hook_text: $("chook").value});
-    toast(m.message); $("cdlg").close(); poll();
-  } catch (x) { $("cerr").textContent = x.message; b.disabled = false; }
+    const body = xBody();
+    if (edJson() !== ED.orig) Object.assign(body, {hook_text: ED.hook.trim(), captions: ED.caps.map(g => ({...g, text: g.text.trim()})), zooms: ED.zooms, sfx: ED.sfx});
+    const m = await api(`/api/candidates/${ED.id}/edit`, body);
+    toast(m.message);
+    if (/refeito/.test(m.message)) { ED.orig = edJson(); X.orig = xJson(); $("cdlg").close(); poll(); }
+    else { ED.orig = edJson(); xBase(); edMark(); poll(); }
+  } catch (x) { $("cerr").textContent = x.message; }
+  b.disabled = false;
 };
 
 // ================= infra: fetch helpers, dialog, router =================
@@ -531,11 +977,12 @@ function ask(html, ok) {
   });
 }
 
-const TABS = ["ao-vivo", "configuracao", "uso", "modelos", "contas"];
+const TABS = ["ao-vivo", "importar", "configuracao", "uso", "modelos", "contas"];
 let cur = null, tms = [];
 const tm = (f, ms) => { f(); tms.push(setInterval(f, ms)); };
 const ENTER = {
   "ao-vivo": () => tm(poll, 2000),
+  importar: () => tm(loadImps, 3000),
   configuracao: () => tm(() => { loadSetup(false); loadSes(); }, 30000),
   uso: () => tm(loadUsage, 10000),
   modelos: () => openModelos(),
@@ -562,11 +1009,91 @@ async function route() {
   go(t);
 }
 addEventListener("hashchange", route);
-addEventListener("beforeunload", e => { if (mdirty()) { e.preventDefault(); e.returnValue = ""; } });
+addEventListener("beforeunload", e => { if (mdirty() || upx) { e.preventDefault(); e.returnValue = ""; } });
 document.addEventListener("visibilitychange", () => {
   tms.forEach(clearInterval); tms = [];
   if (!document.hidden && cur !== "modelos") ENTER[cur]();
 });
+
+// ================= importar =================
+const IOK = "lf_imp_opts", MODES = {fit: "Inteiro + fundo desfocado", fill: "Preencher a tela", template: "Igual aos clipes da live"};
+const MODE_HINT = {fit: "O vídeo inteiro aparece, com fundo desfocado em cima e embaixo.", fill: "Ocupa a tela toda; corta as laterais do vídeo.",
+  template: "Só use se o vídeo tiver a mesma cena do OBS (webcam e jogo nas mesmas posições)."};
+let upx = null;
+function impOpts() { return {clips: +$("ioclips").value, mode: $("iomode").value, min_score: +$("iomin").value, game: $("iogame").value.trim()}; }
+function impSync() { $("iominv").textContent = $("iomin").value; $("iomh").textContent = MODE_HINT[$("iomode").value]; lsSet(IOK, JSON.stringify(impOpts())); }
+(function () {
+  let o = {}; try { o = JSON.parse(lsGet(IOK)) || {}; } catch (e) { /* none */ }
+  if ([0, 5, 10, 15, 20, 30].includes(o.clips)) $("ioclips").value = o.clips;
+  if (MODE_HINT[o.mode]) $("iomode").value = o.mode;
+  $("iomin").value = clamp(+o.min_score || 70, 50, 90); $("iogame").value = typeof o.game === "string" ? o.game.slice(0, 60) : "";
+  impSync();
+  ["ioclips", "iomode", "iomin", "iogame"].forEach(i => $(i).addEventListener("input", impSync));
+})();
+async function impCreate(path) {
+  try { toast((await api("/api/imports", {path, options: impOpts()})).message); loadImps(); }
+  catch (e) { toast(e.message, true); }
+}
+const mbs = n => (n / 1048576).toFixed(n < 1e7 ? 1 : 0);
+function impUpload(file) {
+  if (upx) return;
+  const x = upx = new XMLHttpRequest(), t0 = Date.now();
+  x.open("PUT", "/api/imports/upload?name=" + encodeURIComponent(file.name));
+  $("iupw").style.display = "block"; $("idrop").classList.add("busy"); $("iupn").textContent = "Enviando " + file.name;
+  const end = () => { upx = null; $("iupw").style.display = "none"; $("idrop").classList.remove("busy"); $("ifile").value = ""; };
+  x.upload.onprogress = e => {
+    const p = e.total ? e.loaded / e.total : 0, sp = e.loaded / Math.max(.5, (Date.now() - t0) / 1000);
+    $("iupb").style.width = p * 100 + "%";
+    $("iupt").textContent = `${mbs(e.loaded)} / ${mbs(e.total)} MB · ${Math.round(p * 100)}% · ${mbs(sp)} MB/s`;
+  };
+  x.onload = () => {
+    let d = {}; try { d = JSON.parse(x.responseText); } catch (e) { /* empty */ }
+    end();
+    if (x.status !== 200) return toast(d.error || "Falha no envio", true);
+    impCreate(d.path);
+  };
+  x.onerror = () => { end(); toast("Falha no envio", true); };
+  x.onabort = () => { end(); toast("Envio cancelado"); };
+  x.send(file);
+}
+$("iupc").onclick = () => upx && upx.abort();
+$("idrop").onclick = () => $("ifile").click();
+$("idrop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("ifile").click(); } };
+$("ifile").onchange = e => e.target.files[0] && impUpload(e.target.files[0]);
+["dragenter", "dragover"].forEach(n => $("idrop").addEventListener(n, e => { e.preventDefault(); $("idrop").classList.add("over"); }));
+["dragleave", "drop"].forEach(n => $("idrop").addEventListener(n, e => { e.preventDefault(); $("idrop").classList.remove("over"); }));
+$("idrop").addEventListener("drop", e => e.dataTransfer.files[0] && impUpload(e.dataTransfer.files[0]));
+$("ipgo").onclick = async () => {
+  const p = $("ipath").value.trim().replace(/^"(.*)"$/, "$1"); if (!p) return toast("Informe o caminho do vídeo", true);
+  $("ipgo").disabled = true; await impCreate(p); $("ipgo").disabled = false;
+};
+function impCard(i) {
+  const c = i.clips || {}, tot = Object.values(c).reduce((a, b) => a + b, 0), q = ["pending", "running", "retry", "deferred"].reduce((a, k) => a + (c[k] || 0), 0);
+  const o = i.options || {}, active = ["pending", "running", "retry", "deferred"].includes(i.status);
+  const sum = [dur(i.duration_s), o.clips ? o.clips + " Shorts" : "automático", MODES[o.mode] || o.mode, "nota ≥ " + o.min_score, o.game].filter(Boolean).join(" · ");
+  let st = "", bar = "";
+  if (i.status === "failed") st = `<span class="err">Falhou</span>`;
+  else if (i.stage === "pronto") {
+    st = !tot ? "Nenhum momento passou da nota mínima"
+      : `<span class="ok2">${tot} Short${tot > 1 ? "s" : ""} escolhido${tot > 1 ? "s" : ""}</span> — ${c.done || 0} pronto${c.done === 1 ? "" : "s"}, ${q} na fila${c.failed ? `, <span class="err">${c.failed} com falha</span>` : ""}`;
+  } else if (active) {
+    const p = Math.round(i.progress * 100);
+    if (i.progress >= 1) st = "Escolhendo os melhores momentos…";
+    else { st = (i.stage === "transcrevendo" || p > 0 ? `Transcrevendo… ${p}%` : "Na fila para transcrever") + (i.status === "deferred" ? " (esperando a live liberar o PC)" : i.status === "retry" ? " (tentando de novo)" : ""); bar = `<div class="prog"><i style="width:${p}%"></i></div>`; }
+  } else st = esc(i.status);
+  const cancel = active || q ? `<button type="button" class="del" data-impcancel="${i.id}">Cancelar</button>` : "";
+  return `<div class="ic2"><div class="row"><div style="min-width:0"><b>${esc(i.name)}</b><div class="small">${esc(sum)}</div></div>
+    <div class="acts" style="margin:0"><button type="button" data-impview="${i.id}">Ver clipes</button>${cancel}</div></div>
+    <div>${st}</div>${bar}${i.error ? `<div class="err">${esc(i.error)}</div>` : ""}</div>`;
+}
+async function loadImps() {
+  try { const l = (await j("/api/imports")).imports; syncList($("implist"), l, impCard); $("impempty").style.display = l.length ? "none" : "block"; }
+  catch (e) { /* offline banner is handled by poll */ }
+}
+async function cancelImp(id) {
+  if (!await ask("Cancelar esta importação? A análise para e os Shorts que ainda não foram feitos são descartados. Os clipes já prontos continuam na lista.", "Cancelar importação")) return;
+  try { toast((await api(`/api/imports/${id}/cancel`)).message); loadImps(); } catch (e) { toast(e.message, true); }
+}
 
 // ================= claude chip + Uso do Claude =================
 let U = null, limTouched = false;
@@ -674,6 +1201,8 @@ function fillSes() {
   document.querySelector(`input[name=sgame][value=${auto ? "auto" : "manual"}]`).checked = true;
   $("sgname").value = auto ? "" : g; $("sgname").disabled = auto;
   $("svoc").value = (SC.session.vocabulary || []).join("\n");
+  const b = SC.branding || {};
+  $("sintro").value = b.intro || ""; $("sintroS").checked = !!b.short_end; $("sintroL").checked = !!b.long_start;
 }
 async function loadSes() {
   try {
@@ -691,7 +1220,8 @@ $("ssave").onclick = async () => {
     if (!gameAuto() && !name) throw new Error("Escreva o nome do jogo ou escolha Automático");
     if (voc.length > 60) throw new Error("No máximo 60 itens no vocabulário");
     if (voc.some(x => x.length > 40)) throw new Error("Cada item do vocabulário tem no máximo 40 letras");
-    await api("/api/settings", {session: {game: gameAuto() ? "auto" : name, vocabulary: voc}});
+    await api("/api/settings", {session: {game: gameAuto() ? "auto" : name, vocabulary: voc},
+      branding: {intro: $("sintro").value.trim() || null, short_end: $("sintroS").checked, long_start: $("sintroL").checked}});
     sesDirty = false; toast("Salvo"); loadSes();
   } catch (x) { $("serr").textContent = x.message; }
 };
@@ -952,5 +1482,6 @@ function frameDown(e) {
 route();
 loadUsage();
 </script>
+
 </body>
 </html>

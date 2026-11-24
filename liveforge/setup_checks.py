@@ -78,6 +78,10 @@ def _has_sound(kind, settings, channels=None):
         # measured silent (e.g. a webcam without its own audio); a capture card with an explicit audio device still
         # counts, even if its scene is hidden right now
         return bool(settings.get("use_custom_audio_device"))
+    if kind == "ffmpeg_source" and settings.get("is_local_file", True) and settings.get("local_file"):
+        from .core import probe  # a looping background/overlay video usually has no audio: ask the file itself
+        p = probe(settings["local_file"])
+        return any(s["codec_type"] == "audio" for s in p["streams"]) if p else True
     return kind in SOUND_KINDS
 
 
@@ -114,6 +118,7 @@ def audio_routing(guard, gl, basic):
     idx = {t: i for i, t in enumerate(rec)}
     return {"rec_tracks": rec, "mics": [m[0] for m in mics], "voice_track": voice, "mix_track": mix,
             "voice_stream": idx.get(voice), "mix_stream": idx.get(mix),
+            "mic_in_mix": bool(mics) and mix is not None and all(mix in m[2] for m in mics),
             "others_with_mic": sorted({o[0] for o in others for m in mics if o[2] & m[2] - ({mix} if mix else set())})}
 
 
@@ -251,6 +256,23 @@ def run_checks(cfg, guard, force=False):
              "Vozes de amigos no Discord deixam de ser legendadas."]))
         if r["voice_track"] is not None:
             cap = cfg["capture"]
+            mixing = bool(cap.get("mix_add_voice"))
+            if r["mic_in_mix"] and mixing:  # mic on both tracks AND mixing: the voice would be doubled
+                items.append(_item("audio_mixvoice", "Áudio", "Sua voz no som dos clipes", False,
+                                   f"o microfone já está na trilha {r['mix_track']} e o LiveForge ainda mistura a trilha "
+                                   f"{r['voice_track']}: sua voz sairia duplicada (mais alta)",
+                                   ["Clique em “Usar trilhas detectadas” para desligar a mistura."],
+                                   action={"id": "audio_tracks", "label": "Usar trilhas detectadas"}))
+            else:
+                items.append(_item(
+                    "audio_mixvoice", "Áudio", "Sua voz no som dos clipes", r["mic_in_mix"] or mixing,
+                    f"a trilha {r['mix_track']} (som dos clipes) " + ("tem o seu microfone" if r["mic_in_mix"] else
+                    "NÃO tem o seu microfone" + (" — o LiveForge mistura a trilha da voz automaticamente" if mixing
+                                                else " — os clipes sairiam SEM a sua voz")),
+                    [f"No OBS (Propriedades avançadas de áudio), marque também a trilha {r['mix_track']} no microfone "
+                     f"(fica nas trilhas {r['mix_track']} e {r['voice_track']}) — recomendado,",
+                     "ou clique em “Misturar minha voz nos clipes”: o LiveForge junta as duas trilhas nos clipes e episódios."],
+                    action={"id": "mix_voice", "label": "Misturar minha voz nos clipes"}))
             using = cap.get("transcribe_stream") == r["voice_stream"] and cap.get("audio_stream") == r["mix_stream"]
             last = _last_audio_streams()
             items.append(_item(
@@ -318,9 +340,16 @@ def action(name, cfg, guard):
         if r["voice_stream"] is None:
             return "Ainda não há uma trilha só com o microfone — siga o passo a passo do item de áudio."
         from .settings import save
-        save({"capture": {"audio_stream": r["mix_stream"] or 0, "transcribe_stream": r["voice_stream"]}})
+        save({"capture": {"audio_stream": r["mix_stream"] or 0, "transcribe_stream": r["voice_stream"],
+                          "mix_add_voice": not r["mic_in_mix"]}})  # mic missing from the clip track: mix it in
         _cache["items"] = None
-        return f"Pronto: legendas e detecção pela trilha {r['voice_track']} (sua voz); clipes com a trilha {r['mix_track']}."
+        return (f"Pronto: legendas e detecção pela trilha {r['voice_track']} (sua voz); clipes com a trilha {r['mix_track']}"
+                + ("" if r["mic_in_mix"] else f" + a trilha {r['voice_track']} misturada (sua voz não estava na {r['mix_track']})") + ".")
+    if name == "mix_voice":
+        from .settings import save
+        save({"capture": {"mix_add_voice": True}})
+        _cache["items"] = None
+        return "Pronto: a trilha da sua voz vai ser misturada no som dos próximos clipes e episódios."
     if name == "webcam_from_obs":
         box = webcam_from_obs(guard)
         if not box:

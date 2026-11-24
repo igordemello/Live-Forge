@@ -77,6 +77,7 @@ function layoutGroup(words) {
 const tweens = [];
 let capHtml = "";
 plan.captions.forEach((g, gi) => {
+  if (g.end_ms - g.start_ms < 50) return; // a zero-length clip would stay on screen until the end
   const { px, lines } = layoutGroup(g.words);
   let wi = 0;
   const body = lines.map((l) => `<div class="ln">${l.map((w) => {

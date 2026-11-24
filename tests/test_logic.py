@@ -71,4 +71,73 @@ from liveforge.guard import game_from_window
 assert game_from_window("SONIC PICO PARK [Streaming]:SDL_app:streaming_client.exe") == "Sonic Pico Park"
 c2 = {"session": {"game": "auto", "current_game": "Sonic Pico Park", "hashtags": ["#shorts", "#sonicpicopark"]}}
 assert hashtags(c2) == ["#sonicpicopark", "#shorts"], hashtags(c2)
+# collapsed Whisper timings never produce zero-length caption lines (they'd stay on screen in HyperFrames)
+col = [(10700, 10900, "fazendo?"), (10900, 10900, "você"), (10900, 10900, "está"), (10900, 10900, "fazendo"),
+       (10900, 10900, "o"), (10900, 10900, "que"), (11000, 11400, "isso")]
+cg = caption_groups(col, 20000)
+assert all(g["end_ms"] - g["start_ms"] >= 200 for g in cg), [(g["text"], g["start_ms"], g["end_ms"]) for g in cg]
+assert all(a["end_ms"] <= b["start_ms"] for a, b in zip(cg, cg[1:])), cg
+
+# zoom placement: the model's punch guess moves to the voice peak (shout) within ±1.5 s
+from liveforge.shorts import refine_punch
+shout = np.random.default_rng(2).normal(0, 0.005, sr * 10).astype(np.float32)
+shout[int(6.2 * sr):int(6.6 * sr)] += 0.5
+assert 6150 <= refine_punch(5000, shout) <= 6600, refine_punch(5000, shout)
+assert refine_punch(1000, shout) == 1000  # no clear peak nearby: keep the guess
+
+# clip editor: valid edit re-queues the clip; overlaps, unknown sounds and out-of-range values are refused
+import json as _json
+import sqlite3
+import tempfile
+from pathlib import Path as _P
+from liveforge import shorts
+tmp = _P(tempfile.mkdtemp())
+shorts.PLANS = tmp
+con = sqlite3.connect(":memory:")
+con.row_factory = sqlite3.Row
+con.execute("create table candidates(id integer primary key, status text, data text, priority int, next_at real, attempts int, error text)")
+con.execute("insert into candidates values (7, 'done', '{}', 0, 0, 0, null)")
+plan = {"duration_ms": 10000, "hook_text": None, "webcam_box": None, "layout": {"game": {"x": 0, "y": 656, "w": 1080, "h": 608}},
+        "captions": [{"text": "OI", "start_ms": 500, "end_ms": 900, "words": [{"text": "OI", "start_ms": 500, "end_ms": 900}]}],
+        "effects": [{"type": "zoom", "start_ms": 2000, "duration_ms": 700, "scale": 1.18, "anchor": [0.5, 0.5]},
+                    {"type": "sfx", "start_ms": 2000, "asset": "assets/sfx/pop.wav", "gain_db": -14}]}
+(tmp / "c7.json").write_text(_json.dumps({"parts": [], "keep": [[0, 10000]], "start": 0, "end": 10000, "plan": plan}))
+con.execute("alter table candidates add column out_path text")
+con.execute("create table segments(path text, start_ms integer, duration_ms integer)")
+con.execute("insert into segments values ('rec.mkv', -60000, 120000)")  # recording around the clip: [-60 s, +60 s]
+ed = shorts.load_edit(con, 7, cfg)
+assert ed["cut"]["min_ms"] == -45000 and ed["cut"]["max_ms"] == 55000, ed["cut"]  # ±45 s, clamped to the recording
+assert ed["options"]["templates"]["split"] and ed["options"]["trim_pauses"] is not None
+assert ed["zooms"][0]["start_ms"] == 2000 and ed["sfx"][0]["sound"] == "pop" and "boing" in ed["sounds"]
+ed["zooms"][0]["start_ms"] = 6000
+ed["sfx"] = [{"start_ms": 6000, "sound": "impact_soft", "gain_db": -10}]
+shorts.save_edit(con, 7, {k: ed[k] for k in ("captions", "zooms", "sfx", "hook_text")}, cfg)
+row = con.execute("select status, priority, data from candidates where id=7").fetchone()
+assert row["status"] == "pending" and row["priority"] == 1 and _json.loads(row["data"])["rerender"]
+fx = _json.loads((tmp / "c7.json").read_text())["plan"]["effects"]
+assert fx[0]["start_ms"] == 6000 and fx[1]["asset"].endswith("impact_soft.wav")
+con.execute("update candidates set status='done' where id=7")
+for bad in ({"zooms": [{"start_ms": 1000, "duration_ms": 900, "scale": 1.2, "anchor": [.5, .5]},
+                       {"start_ms": 1500, "duration_ms": 500, "scale": 1.2, "anchor": [.5, .5]}]},
+            {"sfx": [{"start_ms": 100, "sound": "../../config", "gain_db": -10}]},
+            {"zooms": [{"start_ms": 100, "duration_ms": 500, "scale": 9, "anchor": [.5, .5]}]}):
+    try:
+        shorts.save_edit(con, 7, bad, cfg)
+        raise AssertionError(bad)
+    except ValueError:
+        pass
+# extending the cut 3 s earlier marks a re-cut; effects are remapped onto the recording by the renderer
+shorts.save_edit(con, 7, {"cut": {"start_ms": -3000, "end_ms": 10000}}, cfg)
+sv = _json.loads((tmp / "c7.json").read_text())
+assert sv["recut"] == [-3000, 10000] and sv["rebuild"], sv
+for bad in ({"cut": {"start_ms": -50000, "end_ms": 10000}}, {"cut": {"start_ms": 0, "end_ms": 2000}}, {"options": {"template": "x"}}):
+    con.execute("update candidates set status='done' where id=7")
+    try:
+        shorts.save_edit(con, 7, bad, cfg)
+        raise AssertionError(bad)
+    except ValueError:
+        pass
+from liveforge.shorts import abs_time
+kp = [(0, 1000), (3000, 6000)]
+assert abs_time(1500, kp) == 3500 and clip_time(abs_time(3200, kp), kp) == 3200 and abs_time(4200, kp) is None
 print("ok")
